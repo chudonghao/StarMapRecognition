@@ -2,27 +2,27 @@
 // Created by cdh on 19-9-21.
 //
 
-#include "SecondCameraManipulator.h"
+#include "SensorCameraManipulator.h"
 using namespace std;
 using namespace osg;
 
-SecondCameraManipulator::SecondCameraManipulator() : /*key_state_(),*/ eye_(0.f, 0.f, 0.f), center_(0.f, 1.f, 0.f), up_(0.f, 0.f, 1.f) {}
+SensorCameraManipulator::SensorCameraManipulator() : /*key_state_(),*/ eye_(0.f, 0.f, 0.f), center_(0.f, 1.f, 0.f), up_(0.f, 0.f, 1.f) {}
 
-void SecondCameraManipulator::setByMatrix(const osg::Matrixd &matrix) {
+void SensorCameraManipulator::setByMatrix(const osg::Matrixd &matrix) {
   setByInverseMatrix(Matrix::inverse(matrix));
 }
-void SecondCameraManipulator::setByInverseMatrix(const osg::Matrixd &matrix) {
+void SensorCameraManipulator::setByInverseMatrix(const osg::Matrixd &matrix) {
   matrix.getLookAt(eye_, center_, up_);
   matrix_ = matrix;
 }
-osg::Matrixd SecondCameraManipulator::getMatrix() const {
+osg::Matrixd SensorCameraManipulator::getMatrix() const {
   return Matrix::inverse(matrix_);
 }
-osg::Matrixd SecondCameraManipulator::getInverseMatrix() const {
+osg::Matrixd SensorCameraManipulator::getInverseMatrix() const {
   return matrix_;
 }
 
-bool SecondCameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &aa) {
+bool SensorCameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &aa) {
   switch (ea.getEventType()) {
     case osgGA::GUIEventAdapter::DRAG: {
       //if (key_state_) {
@@ -43,8 +43,14 @@ bool SecondCameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GU
 
         if (new_side*n_side > 0.f) {
           center_ = eye_ + dir;
+          if(on_rotated_){
+            on_rotated_(eye_,center_);
+          }
         }
       //}
+      last_pos_.x() = ea.getX();
+      last_pos_.y() = ea.getY();
+      break;
     }
     case osgGA::GUIEventAdapter::PUSH: {
       last_pos_.x() = ea.getX();

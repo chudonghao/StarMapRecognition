@@ -8,6 +8,4 @@
 #include <osg/Group>
 #include <osg/Geometry>
 
-void CreateLongitudeLatitude(osg::Group *root, float radio);
-
 #endif //STARMAPRECOGNITION_SRC_COMMONFUNC_H_

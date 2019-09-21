@@ -2,15 +2,15 @@
 // Created by cdh on 19-9-21.
 //
 
-#ifndef STARMAPRECOGNITION_SRC_CAMERAMANIPULATOR_H_
-#define STARMAPRECOGNITION_SRC_CAMERAMANIPULATOR_H_
+#ifndef STARMAPRECOGNITION_SRC_MASTERCAMERAMANIPULATOR_H_
+#define STARMAPRECOGNITION_SRC_MASTERCAMERAMANIPULATOR_H_
 
 #include <osgGA/CameraManipulator>
 #include <osgText/Text>
 
-class CameraManipulator : public osgGA::CameraManipulator {
+class MasterCameraManipulator : public osgGA::CameraManipulator {
  public:
-  CameraManipulator();
+  MasterCameraManipulator();
   void setByMatrix(const osg::Matrixd &matrix) override;
   void setByInverseMatrix(const osg::Matrixd &matrix) override;
   osg::Matrixd getMatrix() const override;
@@ -29,4 +29,4 @@ class CameraManipulator : public osgGA::CameraManipulator {
   osg::Vec2 last_pos_;
 };
 
-#endif //STARMAPRECOGNITION_SRC_CAMERAMANIPULATOR_H_
+#endif //STARMAPRECOGNITION_SRC_MASTERCAMERAMANIPULATOR_H_

@@ -9,27 +9,27 @@
 #include <osg/MatrixTransform>
 #include <osgViewer/Viewer>
 #include <iostream>
-#include "CameraManipulator.h"
+#include "MasterCameraManipulator.h"
 
 using namespace osg;
 using namespace std;
 
-CameraManipulator::CameraManipulator() : eye_(0.f, -100.f, 0.f), center_(), up_(0.f, 0.f, 1.f) {}
+MasterCameraManipulator::MasterCameraManipulator() : eye_(0.f, -100.f, 0.f), center_(), up_(0.f, 0.f, 1.f) {}
 
-void CameraManipulator::setByMatrix(const osg::Matrixd &matrix) {
+void MasterCameraManipulator::setByMatrix(const osg::Matrixd &matrix) {
   setByInverseMatrix(Matrix::inverse(matrix));
 }
-void CameraManipulator::setByInverseMatrix(const osg::Matrixd &matrix) {
+void MasterCameraManipulator::setByInverseMatrix(const osg::Matrixd &matrix) {
   matrix.getLookAt(eye_, center_, up_);
   matrix_ = matrix;
 }
-osg::Matrixd CameraManipulator::getMatrix() const {
+osg::Matrixd MasterCameraManipulator::getMatrix() const {
   return Matrix::inverse(matrix_);
 }
-osg::Matrixd CameraManipulator::getInverseMatrix() const {
+osg::Matrixd MasterCameraManipulator::getInverseMatrix() const {
   return matrix_;
 }
-bool CameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &aa) {
+bool MasterCameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &aa) {
   switch (ea.getEventType()) {
     case osgGA::GUIEventAdapter::SCROLL: {
       switch (ea.getScrollingMotion()) {
@@ -105,7 +105,7 @@ bool CameraManipulator::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActio
   }
   return false;
 }
-void CameraManipulator::init(const osgGA::GUIEventAdapter &adapter, osgGA::GUIActionAdapter &action_adapter) {
+void MasterCameraManipulator::init(const osgGA::GUIEventAdapter &adapter, osgGA::GUIActionAdapter &action_adapter) {
   eye_ = Vec3(0.f, -100.f, 0.f);
   center_ = Vec3();
   up_ = Vec3(0.f, 0.f, 1.f);
