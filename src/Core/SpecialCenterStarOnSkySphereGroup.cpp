@@ -3,3 +3,13 @@
 //
 
 #include "SpecialCenterStarOnSkySphereGroup.h"
+#include "../log.h"
+
+void SpecialCenterStarOnSkySphereGroup::Add(const std::string &name, StarOnSkySphere star) {
+  if (special_center_.GetName() == "") {
+    LOG_WARNING << "Set special_center before add star.";
+  }
+  float ad = star.AngularDistance(special_center_);
+  //LOG_TRACE << "ad: " << ad;
+  stars_[name] = {ad, star};
+}

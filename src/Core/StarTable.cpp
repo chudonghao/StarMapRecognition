@@ -44,6 +44,9 @@ map<string, Descriptor2<32, 16>> StarTable::CreateDescriptorDatabase() {
   shared_ptr<multimap<double, StarOnSkySphere>> angular_distance_star_map(new multimap<double, StarOnSkySphere>);
   int i = 0;
   for (auto &name_star_pair:star_table_) {
+    if (i%100 == 0) {
+      LOG_INFO << i << '/' << star_table_.size();
+    }
     angular_distance_star_map->clear();
     StarOnSkySphere star(name_star_pair.second);
     SpecialCenterStarOnSkySphereGroup scsg(star);

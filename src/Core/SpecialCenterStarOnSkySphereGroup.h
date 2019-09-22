@@ -16,12 +16,10 @@ class SpecialCenterStarOnSkySphereGroup {
     float angular_distance;
     StarOnSkySphere star;
   };
-  const std::map<std::string, AngularDistanceStar> &GetSkySpherePoses() const {
+  const std::map<std::string, AngularDistanceStar> &GetStaresOnSkyShphere() const {
     return stars_;
   }
-  void Add(const std::string &name, StarOnSkySphere star) {
-    stars_[name] = {(float) star.AngularDistance(special_center_), star};
-  }
+  void Add(const std::string &name, StarOnSkySphere star);
   const StarOnSkySphere &GetSpecialCenter() const {
     return special_center_;
   }

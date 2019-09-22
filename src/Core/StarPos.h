@@ -48,6 +48,10 @@ struct SkySpherePos : public osg::Vec2d {
   SkySpherePos() {}
   SkySpherePos(const osg::Vec2f &vec) : Vec2d(vec) {}
   SkySpherePos(value_type x, value_type y) : Vec2d(x, y) {}
+  SkySpherePos &operator=(const osg::Vec2d &r) {
+    SetLongitude(r.x());
+    SetLatitude(r.y());
+  }
   double GetLongitude() const {
     return x();
   }
