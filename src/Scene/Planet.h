@@ -10,15 +10,13 @@
 
 class Planet : public osg::Geode {
  public:
-  Planet(int id, const osg::Vec4 &color, float radio);
+  Planet(const std::string &name, const osg::Vec4 &color, float radio);
   void SetColor(const osg::Vec4 &color);
   void PushColor(const osg::Vec4 &color);
   void PopColor();
-  int GetId() { return id_; }
  private:
   osg::ShapeDrawable *shape_drawable_;
   osg::Vec4 origin_color_;
-  int id_;
 };
 
 #endif //STARMAPRECOGNITION__PLANET_H_

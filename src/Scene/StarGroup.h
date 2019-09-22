@@ -8,14 +8,14 @@
 #include <osg/Group>
 class Planet;
 
-class StarGroup : public osg::Group{
+class StarGroup : public osg::Group {
  public:
   explicit StarGroup(float radio);
  private:
   void InitPlanets();
   void InitLongitudeLatitude();
   float radio_;
-  std::map<int,Planet*> id_planet_map_;
+  std::map<std::string, Planet *> id_planet_map_;
 };
 
 #endif //STARMAPRECOGNITION_SRC_STARGROUP_H_

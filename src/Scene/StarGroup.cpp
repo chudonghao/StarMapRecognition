@@ -15,12 +15,12 @@ StarGroup::StarGroup(float radio) : radio_(radio) {
   InitLongitudeLatitude();
 }
 void StarGroup::InitPlanets() {
-  auto*star_group = new Group;
+  auto *star_group = new Group;
   addChild(star_group);
   for (const auto &item : StarTable::instance()->Table()) {
     auto *mt = new MatrixTransform;
     star_group->addChild(mt);
-    auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), exp(log(1.3797) * (-item.second.l + 6.))*3.f);
+    auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), exp(log(1.3797)*(-item.second.l + 6.))*3.f);
     mt->addChild(planet);
 
     id_planet_map_[item.second.id] = planet;
@@ -29,11 +29,11 @@ void StarGroup::InitPlanets() {
     //auto rotate_axis_ny = Vec3d(0., -1., 0.)*rotate_a;
     auto rotate_b = Matrix::rotate(DegreesToRadians(item.second.b), Vec3d(0., -1., 0.));
 
-    planet->setName(to_string(item.second.id) + ':' + to_string(item.second.a) + ':' + to_string(item.second.b) + ':'
+    planet->setName(item.second.id + ':' + to_string(item.second.a) + ':' + to_string(item.second.b) + ':'
                         + to_string(item.second.l));
-    mt->setMatrix(Matrix::translate(Vec3(2000., 0., 0.)) * rotate_b * rotate_a);
+    mt->setMatrix(Matrix::translate(Vec3(2000., 0., 0.))*rotate_b*rotate_a);
   }
-  auto*long_lat_group = new Group;
+  auto *long_lat_group = new Group;
   addChild(long_lat_group);
 }
 void StarGroup::InitLongitudeLatitude() {

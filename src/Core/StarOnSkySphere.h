@@ -9,6 +9,9 @@
 
 class StarOnSkySphere {
  public:
+  StarOnSkySphere() : sky_sphere_pos_(), name_() {}
+  explicit StarOnSkySphere(StarTablePos pos);
+  StarOnSkySphere(const std::string &name, const SkySpherePos &sky_sphere_pos) : name_(name), sky_sphere_pos_(sky_sphere_pos) {}
   const SkySpherePos &GetSkySpherePos() const {
     return sky_sphere_pos_;
   }
@@ -21,9 +24,17 @@ class StarOnSkySphere {
   void SetName(const std::string &name) {
     name_ = name;
   }
+  double AngularDistance(const StarOnSkySphere &star);
+
+  bool operator==(const StarOnSkySphere &rhs) const {
+    return name_ == rhs.name_;
+  }
+  bool operator!=(const StarOnSkySphere &rhs) const {
+    return !(rhs == *this);
+  }
  private:
-  SkySpherePos sky_sphere_pos_;
   std::string name_;
+  SkySpherePos sky_sphere_pos_;
 };
 
 #endif //STARMAPRECOGNITION_SRC_CORE_STARONSKYSPHERE_H_

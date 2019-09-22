@@ -70,7 +70,7 @@ void MasterView::InitCameraManipulator() {
         cout << window.x() << ":" << window.y() << ":" << window.z() << endl;
         static int i = 0;
         auto &star_table = StarTable::instance()->Table();
-        input_[i] = Input{star_table[planet->GetId()].a, star_table[planet->GetId()].b, sqrt(window.x()*window.x() + window.y()*window.y())};
+        input_[i] = Input{star_table[planet->getName()].a, star_table[planet->getName()].b, sqrt(window.x()*window.x() + window.y()*window.y())};
         ++i;
         if (i == 3) {
           i = 0;

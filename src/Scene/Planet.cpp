@@ -5,7 +5,8 @@
 #include "Planet.h"
 using namespace osg;
 using namespace std;
-Planet::Planet(int id, const osg::Vec4 &color, float radio) : id_(id) {
+Planet::Planet(const std::string &name, const osg::Vec4 &color, float radio) {
+  setName(name);
   shape_drawable_ = new ShapeDrawable(new Sphere(Vec3(), radio));
   shape_drawable_->setColor(color);
   addDrawable(shape_drawable_);

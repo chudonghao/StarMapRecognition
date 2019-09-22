@@ -82,27 +82,34 @@ int main(int argc, char *argv[]) {
 
   StarGraph star_graph;
   star_graph.InitFrom("xingtu01.xml", 512., 12.);
+  star_graph.GetDescriptors();
   star_graph.InitFrom("xingtu02.xml", 512., 12.);
+  star_graph.GetDescriptors();
   star_graph.InitFrom("xingtu03.xml", 512., 12.);
+  star_graph.GetDescriptors();
   star_graph.InitFrom("xingtu04.xml", 512., 12.);
+  star_graph.GetDescriptors();
   star_graph.InitFrom("xingtu05.xml", 512., 12.);
+  star_graph.GetDescriptors();
   star_graph.InitFrom("xingtu06.xml", 512., 12.);
   //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
-  Descriptor des = star_graph.GetDescriptor();
+  std::map<std::string, Descriptor2<32, 16>> dess1 = star_graph.GetDescriptors();
 
-  map<int, Descriptor> dess = StarTable::instance()->CreateDescriptorDatabase(des.GetRadio(), des.GetStarSize());
+  std::map<std::string, Descriptor2<32, 16>> dess2 = StarTable::instance()->CreateDescriptorDatabase();
 
-  map<DescriptorConvDiff, int> match;
-  for (auto &des1:dess) {
-    DescriptorConvDiff diff = DescriptorConvDiff::diff(des, des1.second);
-    match[diff] = des1.first;
+  map<float, string> match;
+  for (auto &des1:dess1) {
+    for (auto &des2:dess2) {
+      float dif = diff<Descriptor2<32, 16>>(des1.second, des2.second);
+      match[dif] = des1.first;
+    }
+    LOG_TRACE << "star: " << des1.first << ", descriptor: ";
   }
-
   auto iter = match.begin();
   for (int i = 0; i < 10; ++i) {
     if (iter != match.end()) {
-      cout << iter->first.Conv() << ":" << iter->second << endl;
+      cout << iter->first << ":" << iter->second << endl;
       auto &star = StarTable::instance()->Table()[iter->second];
       cout << star.a << ":" << star.b << endl;
       ++iter;

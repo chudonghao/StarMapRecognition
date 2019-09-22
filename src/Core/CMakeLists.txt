@@ -17,6 +17,14 @@ add_library(${MODEL_NAME} STATIC
         StarOnGraph.cpp
         StarOnGraph.h
         StarOnSkySphere.cpp
-        StarOnSkySphere.h SpecialCenterStarOnSkySphereGroup.cpp SpecialCenterStarOnSkySphereGroup.h)
+        StarOnSkySphere.h
+        SpecialCenterStarOnSkySphereGroup.cpp
+        SpecialCenterStarOnSkySphereGroup.h
+        Descriptor2.cpp
+        Descriptor2.h
+        DescriptorConverter.cpp
+        DescriptorConverter.h
+        SpecialCenterStarOnGraphGroup.cpp
+        SpecialCenterStarOnGraphGroup.h)
 
 target_link_libraries(${MODEL_NAME} ${PUGIXML_LIBRARY} ${OpenCV_LIBS} ${CERES_LIBRARIES})

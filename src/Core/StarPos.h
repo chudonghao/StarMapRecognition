@@ -9,11 +9,17 @@
 #include <osg/Vec2d>
 #include <map>
 
+/*
+ * 星表信息
+ */
 struct StarTablePos {
-  int id;
+ public:
+  std::string id;
   double a, b, l;
 };
-
+/**
+ * 星图上的像素坐标
+ */
 struct StarGraphPos : public osg::Vec2d {
   StarGraphPos() {}
   StarGraphPos(const osg::Vec2f &vec) : Vec2d(vec) {}
@@ -31,8 +37,14 @@ struct StarGraphPos : public osg::Vec2d {
     y() = pixel_y;
   }
 };
-
+/**
+ * 经纬度坐标
+ */
 struct SkySpherePos : public osg::Vec2d {
+  explicit SkySpherePos(const StarTablePos &table_pos) {
+    SetLongitude(table_pos.a);
+    SetLatitude(table_pos.b);
+  }
   SkySpherePos() {}
   SkySpherePos(const osg::Vec2f &vec) : Vec2d(vec) {}
   SkySpherePos(value_type x, value_type y) : Vec2d(x, y) {}
@@ -48,6 +60,13 @@ struct SkySpherePos : public osg::Vec2d {
   void SetLatitude(double latitude) {
     y() = latitude;
   }
+  double AngularDistance(const SkySpherePos &pos2);
 };
+
+void Convert(double pixel_f,
+             const StarGraphPos &graph_center,
+             const StarGraphPos &special_center,
+             const StarGraphPos &from,
+             SkySpherePos &to);
 
 #endif //STARMAPRECOGNITION_SRC_CORE_STARPOS_H_

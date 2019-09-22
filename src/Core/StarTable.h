@@ -7,16 +7,16 @@
 
 #include <map>
 #include "StarPos.h"
-#include "Descriptor.h"
+#include "Descriptor2.h"
 
 class StarTable {
  public:
   static StarTable *instance();
-  std::map<int, StarTablePos> &Table() { return star_table_; }
-  std::map<int, Descriptor> CreateDescriptorDatabase(double max_r, int planet_num);
-
+  std::map<string, StarTablePos> &Table() { return star_table_; }
+  //std::map<string, Descriptor> CreateDescriptorDatabase(double max_r, int planet_num);
+  std::map<string,Descriptor2<32,16>> CreateDescriptorDatabase();
  private:
-  std::map<int, StarTablePos> star_table_;
+  std::map<string, StarTablePos> star_table_;
 };
 
 #endif //STARMAPRECOGNITION_SRC_STARTABLE_H_
