@@ -1,0 +1,12 @@
+//
+// Created by cdh on 19-9-22.
+//
+
+#ifndef STARMAPRECOGNITION_SRC_CORE_STAR_H_
+#define STARMAPRECOGNITION_SRC_CORE_STAR_H_
+
+class Star {
+
+};
+
+#endif //STARMAPRECOGNITION_SRC_CORE_STAR_H_

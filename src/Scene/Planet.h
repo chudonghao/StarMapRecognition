@@ -8,11 +8,6 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 
-struct PlanetData {
-  int id;
-  double a, b, l;
-};
-
 class Planet : public osg::Geode {
  public:
   Planet(int id, const osg::Vec4 &color, float radio);

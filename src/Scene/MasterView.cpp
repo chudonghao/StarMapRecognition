@@ -8,8 +8,8 @@
 #include "MasterCameraManipulator.h"
 #include "Shape.h"
 #include "Planet.h"
-#include "CameraStarFunc.h"
-#include "StarTable.h"
+#include "../Core/CameraStarFunc.h"
+#include "../Core/StarTable.h"
 
 using namespace std;
 using namespace osg;
@@ -30,7 +30,7 @@ MasterView::MasterView(GraphicsContext *gc) {
   InitCameraManipulator();
 
   camera_frame_node_ = nullptr;
-  root_->getOrCreateStateSet()->setMode(GL_LIGHTING,StateAttribute::OFF);
+  root_->getOrCreateStateSet()->setMode(GL_LIGHTING, StateAttribute::OFF);
 }
 void MasterView::InitCameraManipulator() {
   camera_manipulator_ = new MasterCameraManipulator;
@@ -58,19 +58,19 @@ void MasterView::InitCameraManipulator() {
       }
     }
     if (node) {
-      Vec3 target = Vec3() * m;
+      Vec3 target = Vec3()*m;
       Geode *geode = new Geode;
       geode->addDrawable(createLine(Vec3(), target, Vec3(0.f, 0.f, 1.f)));
       root_->addChild(geode);
       Planet *planet = dynamic_cast<Planet *>(node);
       planet->SetColor(Vec4(0.f, 0.f, 1.f, 1.f));
 
-      if(sensor_camera_){
-        Vec3 window = target * sensor_camera_->getViewMatrix() * sensor_camera_->getProjectionMatrix();
+      if (sensor_camera_) {
+        Vec3 window = target*sensor_camera_->getViewMatrix()*sensor_camera_->getProjectionMatrix();
         cout << window.x() << ":" << window.y() << ":" << window.z() << endl;
         static int i = 0;
-        input_[i] = Input{StarTable()[planet->GetId()].a, StarTable()[planet->GetId()].b,
-                          sqrt(window.x() * window.x() + window.y() * window.y())};
+        auto &star_table = StarTable::instance()->Table();
+        input_[i] = Input{star_table[planet->GetId()].a, star_table[planet->GetId()].b, sqrt(window.x()*window.x() + window.y()*window.y())};
         ++i;
         if (i == 3) {
           i = 0;
@@ -85,7 +85,7 @@ void MasterView::InitCameraManipulator() {
                   input_[2].r);
         }
       }
-      }
+    }
   });
   view_->setCameraManipulator(camera_manipulator_);
 }
@@ -107,8 +107,8 @@ void MasterView::SetGraphicsContext(osg::GraphicsContext *graphics_context) {
 }
 void MasterView::ShowSensorCamera(Camera *sensor_camera) {
   sensor_camera_ = sensor_camera;
-  if(sensor_camera_){
-    if(camera_frame_node_){
+  if (sensor_camera_) {
+    if (camera_frame_node_) {
       root_->removeChild(camera_frame_node_);
     }
     camera_frame_node_ = new CameraFrameNode(sensor_camera_);

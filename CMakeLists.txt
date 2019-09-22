@@ -16,7 +16,7 @@ include_directories(${OSG_INCLUDE_DIR})
 ################################################################################
 # Boost
 #if (DEFINED BOOST_ROOT)
-find_package(Boost COMPONENTS system)
+find_package(Boost COMPONENTS system log log_setup)
 if (${Boost_FOUND})
     message(STATUS "Boost_INCLUDE_DIR:${Boost_INCLUDE_DIR}")
     message(STATUS "Boost_LIBRARY_DIRS:${Boost_LIBRARY_DIRS}")
@@ -78,5 +78,10 @@ else ()
 endif ()
 add_definitions(${EIGEN3_DEFINITIONS})
 include_directories(${EIGEN3_INCLUDE_DIRS})
+
+find_package(OpenCV REQUIRED COMPONENTS core)
+message(STATUS "OpenCV_LIBS:${OpenCV_LIBS}")
+message(STATUS "OpenCV_INCLUDE_DIRS:${OpenCV_INCLUDE_DIRS}")
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_subdirectory(src)

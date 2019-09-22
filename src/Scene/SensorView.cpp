@@ -47,6 +47,8 @@ SensorView::SensorView(GraphicsContext *graphics_context) : graphics_context_(gr
   target_hint_text_->setCharacterSizeMode(osgText::Text::CharacterSizeMode::SCREEN_COORDS);
   target_hint_text_->setAutoRotateToScreen(true);
   target_hint_text_->setText("90.:0.");
+  // 解决崩溃问题
+  target_hint_text_->setDataVariance(osgText::Text::DataVariance::DYNAMIC);
   root_->getOrCreateStateSet()->setMode(GL_LIGHTING, StateAttribute::OFF);
 }
 osgViewer::View *SensorView::GetView() const {

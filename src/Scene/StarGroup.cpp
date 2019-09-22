@@ -4,20 +4,20 @@
 
 #include "StarGroup.h"
 #include <osg/MatrixTransform>
-#include "StarTable.h"
+#include "../Core/StarTable.h"
 #include "Shape.h"
+#include "Planet.h"
 
 using namespace std;
 using namespace osg;
 StarGroup::StarGroup(float radio) : radio_(radio) {
-
   InitPlanets();
   InitLongitudeLatitude();
 }
 void StarGroup::InitPlanets() {
   auto*star_group = new Group;
   addChild(star_group);
-  for (const auto &item : StarTable()) {
+  for (const auto &item : StarTable::instance()->Table()) {
     auto *mt = new MatrixTransform;
     star_group->addChild(mt);
     auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), exp(log(1.3797) * (-item.second.l + 6.))*3.f);

@@ -13,23 +13,27 @@
 #include <osg/Shape>
 #include <osgGA/KeySwitchMatrixManipulator>
 #include <osgGA/TrackballManipulator>
+#include <iomanip>
 
-#include "MasterCameraManipulator.h"
-#include "Shape.h"
-#include "CommonFunc.h"
-#include "CameraFrameNode.h"
-#include "SensorCameraManipulator.h"
-#include "Planet.h"
-#include "CameraStarFunc.h"
-#include "MasterView.h"
-#include "StarTable.h"
-#include "SensorView.h"
-#include "StarGroup.h"
+#include "Scene/MasterCameraManipulator.h"
+#include "Scene/Shape.h"
+#include "Util/CommonFunc.h"
+#include "Scene/CameraFrameNode.h"
+#include "Scene/SensorCameraManipulator.h"
+#include "Scene/Planet.h"
+#include "Core/CameraStarFunc.h"
+#include "Scene/MasterView.h"
+#include "Core/StarTable.h"
+#include "Scene/SensorView.h"
+#include "Scene/StarGroup.h"
+#include "Core/StarGraph.h"
+#include "log.h"
 
 using namespace std;
 using namespace osg;
 
 int main(int argc, char *argv[]) {
+  cdh::log::InitLogging();
   google::InitGoogleLogging(argv[0]);
 
   auto viewer = new osgViewer::CompositeViewer;
@@ -75,6 +79,35 @@ int main(int argc, char *argv[]) {
   master_view.SetStarNode(star_group);
   master_view.ShowSensorCamera(sensor_view.GetCamera());
   sensor_view.SetStarNode(star_group);
+
+  StarGraph star_graph;
+  star_graph.InitFrom("xingtu01.xml", 512., 12.);
+  star_graph.InitFrom("xingtu02.xml", 512., 12.);
+  star_graph.InitFrom("xingtu03.xml", 512., 12.);
+  star_graph.InitFrom("xingtu04.xml", 512., 12.);
+  star_graph.InitFrom("xingtu05.xml", 512., 12.);
+  star_graph.InitFrom("xingtu06.xml", 512., 12.);
+  //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
+  //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
+  Descriptor des = star_graph.GetDescriptor();
+
+  map<int, Descriptor> dess = StarTable::instance()->CreateDescriptorDatabase(des.GetRadio(), des.GetStarSize());
+
+  map<DescriptorConvDiff, int> match;
+  for (auto &des1:dess) {
+    DescriptorConvDiff diff = DescriptorConvDiff::diff(des, des1.second);
+    match[diff] = des1.first;
+  }
+
+  auto iter = match.begin();
+  for (int i = 0; i < 10; ++i) {
+    if (iter != match.end()) {
+      cout << iter->first.Conv() << ":" << iter->second << endl;
+      auto &star = StarTable::instance()->Table()[iter->second];
+      cout << star.a << ":" << star.b << endl;
+      ++iter;
+    }
+  }
 
   viewer->addView(master_view.GetView());
   viewer->addView(sensor_view.GetView());
