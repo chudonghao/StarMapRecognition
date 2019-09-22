@@ -28,18 +28,25 @@ void Convert(double pixel_f,
   to.SetLatitude(RadiansToDegrees(Radians(dir_Q2, dir))*dir_lat);
 }
 
-void Convert(const StarTablePos &special_center, const StarTablePos &from, SkySpherePos &to) {
+void Convert(const SkySpherePos &special_center, const SkySpherePos &from, SkySpherePos &to) {
   // TODO 更好的计算方式
-  auto rotate_a = Matrix::rotate(DegreesToRadians(special_center.a), Vec3d(0., 0., 1.));
-  //auto rotate_axis_ny = Vec3d(0., -1., 0.)*rotate_a;
-  auto rotate_b = Matrix::rotate(DegreesToRadians(special_center.b), Vec3d(0., -1., 0.));
+  // 经度
+  auto rotate_a = Matrix::rotate(DegreesToRadians(special_center.GetLongitude()), Vec3d(0., 0., 1.));
+  // 纬度
+  auto rotate_b = Matrix::rotate(DegreesToRadians(special_center.GetLatitude()), Vec3d(0., -1., 0.));
   //Vec3d eye = Vec3d();
   //Vec3d center = Vec3d(1., 0., 0.)*rotate_b*rotate_a;
+
+  // Z轴的新方向
   Vec3d axis_y = Vec3d(0., 0., 1.)*rotate_b*rotate_a;
+  // Y负半轴新方向
   Vec3d axis_x = Vec3d(0., -1., 0.)*rotate_b*rotate_a;
-  auto rotate_a2 = Matrix::rotate(DegreesToRadians(from.a), Vec3d(0., 0., 1.));
-  auto rotate_b2 = Matrix::rotate(DegreesToRadians(from.b), Vec3d(0., -1., 0.));
+
+  // from 点坐标
+  auto rotate_a2 = Matrix::rotate(DegreesToRadians(from.GetLongitude()), Vec3d(0., 0., 1.));
+  auto rotate_b2 = Matrix::rotate(DegreesToRadians(from.GetLatitude()), Vec3d(0., -1., 0.));
   Vec3d p = Vec3d(1., 0., 0.)*rotate_b2*rotate_a2;
+
   double angle = RadiansToDegrees(Radians(axis_x, p));
   double angle2 = RadiansToDegrees(Radians(axis_y, p));
   double lat, lon;

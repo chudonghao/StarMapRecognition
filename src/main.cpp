@@ -82,26 +82,27 @@ int main(int argc, char *argv[]) {
 
   StarGraph star_graph;
   star_graph.InitFrom("xingtu01.xml", 512., 12.);
-  star_graph.GetDescriptors();
+  delete (star_graph.GetDescriptor2s<32, 16>());
   star_graph.InitFrom("xingtu02.xml", 512., 12.);
-  star_graph.GetDescriptors();
+  delete (star_graph.GetDescriptor2s<32, 16>());
   star_graph.InitFrom("xingtu03.xml", 512., 12.);
-  star_graph.GetDescriptors();
+  delete (star_graph.GetDescriptor2s<32, 16>());
   star_graph.InitFrom("xingtu04.xml", 512., 12.);
-  star_graph.GetDescriptors();
+  delete (star_graph.GetDescriptor2s<20, 16>());
+  delete (star_graph.GetDescriptor2s<40, 16>());
   star_graph.InitFrom("xingtu05.xml", 512., 12.);
-  star_graph.GetDescriptors();
+  delete (star_graph.GetDescriptor2s<32, 16>());
   star_graph.InitFrom("xingtu06.xml", 512., 12.);
   //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
-  std::map<std::string, Descriptor2<32, 16>> dess1 = star_graph.GetDescriptors();
+  std::map<std::string, Descriptor2<40, 16>> *dess1 = star_graph.GetDescriptor2s<40, 16>();
 
-  std::map<std::string, Descriptor2<32, 16>> dess2 = StarTable::instance()->CreateDescriptorDatabase();
+  std::map<std::string, Descriptor2<40, 16>> *dess2 = StarTable::instance()->CreateDescriptorDatabase<40, 16>();
 
   map<float, string> match;
-  for (auto &des1:dess1) {
-    for (auto &des2:dess2) {
-      float dif = diff<Descriptor2<32, 16>>(des1.second, des2.second);
+  for (auto &des1:*dess1) {
+    for (auto &des2:*dess2) {
+      float dif = diff<Descriptor2<40, 16>>(des1.second, des2.second);
       match[dif] = des1.first;
     }
     LOG_TRACE << "star: " << des1.first << ", descriptor: ";

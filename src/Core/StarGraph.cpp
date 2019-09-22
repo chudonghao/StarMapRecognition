@@ -167,18 +167,6 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
 
   return true;
 }
-std::map<std::string, Descriptor2<32, 16>> StarGraph::GetDescriptors() {
-  // TODO
-  map<string, Descriptor2<32, 16>> res;
-  for (auto &name_star_pair:stars_) {
-    DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor2<32, 16>> converter(true);
-    Descriptor2<32, 16> r;
-    if (converter(name_star_pair.second.GetSpecialStarGroup(), r)) {
-      res.emplace(name_star_pair.first, r);
-    }
-  }
-  return res;
-}
 
 StarGraph::StarGraph() {}
 
@@ -320,7 +308,7 @@ StarGraph::StarGraph() {}
 
 //StarGraph::StarGraph() = default;
 //
-//std::map<std::string, Descriptor2<32, 16>> StarGraph::GetDescriptors() {
+//std::map<std::string, Descriptor2<32, 16>> StarGraph::GetDescriptor2s() {
 //  std::map<std::string, Descriptor2<32, 16>> res;
 //  DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor2<32, 16>> converter;
 //  for (auto &pair:stars_) {

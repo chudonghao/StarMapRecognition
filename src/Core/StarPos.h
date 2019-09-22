@@ -51,6 +51,7 @@ struct SkySpherePos : public osg::Vec2d {
   SkySpherePos &operator=(const osg::Vec2d &r) {
     SetLongitude(r.x());
     SetLatitude(r.y());
+    return *this;
   }
   double GetLongitude() const {
     return x();
@@ -72,5 +73,7 @@ void Convert(double pixel_f,
              const StarGraphPos &special_center,
              const StarGraphPos &from,
              SkySpherePos &to);
+
+void Convert(const SkySpherePos &special_center, const SkySpherePos &from, SkySpherePos &to);
 
 #endif //STARMAPRECOGNITION_SRC_CORE_STARPOS_H_
