@@ -16,22 +16,22 @@
 class StarTable {
  public:
   static StarTable *instance();
-  std::map<string, StarTablePos> &Table() { return star_table_; }
+  std::map<std::string, StarTablePos> &Table() { return star_table_; }
   //std::map<string, Descriptor> CreateDescriptorDatabase(double max_r, int planet_num);
   template<int radial_special_size, int circular_special_size>
-  std::map<string, Descriptor2<radial_special_size, circular_special_size>> *CreateDescriptorDatabase();
+  std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *CreateDescriptorDatabase();
  private:
-  std::map<string, StarTablePos> star_table_;
+  std::map<std::string, StarTablePos> star_table_;
 };
 
 template<int radial_special_size, int circular_special_size>
-map<string, Descriptor2<radial_special_size, circular_special_size>> *StarTable::CreateDescriptorDatabase() {
+std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *StarTable::CreateDescriptorDatabase() {
   using namespace std;
   auto *res = new map<string, Descriptor2<radial_special_size, circular_special_size>>;
   shared_ptr<multimap<double, StarOnSkySphere>> angular_distance_star_map(new multimap<double, StarOnSkySphere>);
   int i = 0;
   for (auto &name_star_pair:star_table_) {
-    if (i%100 == 0) {
+    if (i % 100 == 0) {
       LOG_INFO << i << '/' << star_table_.size();
     }
     angular_distance_star_map->clear();
@@ -57,7 +57,7 @@ map<string, Descriptor2<radial_special_size, circular_special_size>> *StarTable:
     }
     DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor2<radial_special_size, circular_special_size>> converter;
     Descriptor2<radial_special_size, circular_special_size> descriptor;
-    converter.operator()(scsg, descriptor);
+    converter.operator()(scsg, descriptor, false);
     res->emplace(star.GetName(), descriptor);
     ++i;
   }

@@ -25,6 +25,8 @@ add_library(${MODEL_NAME} STATIC
         DescriptorConverter.cpp
         DescriptorConverter.h
         SpecialCenterStarOnGraphGroup.cpp
-        SpecialCenterStarOnGraphGroup.h)
+        SpecialCenterStarOnGraphGroup.h
+        Descriptor3.cpp
+        Descriptor3.h)
 
 target_link_libraries(${MODEL_NAME} ${PUGIXML_LIBRARY} ${OpenCV_LIBS} ${CERES_LIBRARIES})

@@ -6,6 +6,20 @@
 #define STARMAPRECOGNITION_SRC_COMMONFUNC_H_
 
 #include <osg/Vec3d>
-double Radians(osg::Vec3d &left, osg::Vec3d &right);
+
+template<typename VecT_>
+double Radians(const VecT_ &left, const VecT_ &right) {
+  using namespace std;
+  using namespace osg;
+  double sita;
+  sita = left * right / left.length() / right.length();
+  if (sita > 1.) {
+    sita = 1.;
+  }
+  if (sita < -1.) {
+    sita = -1.;
+  }
+  return acos(sita);
+}
 
 #endif //STARMAPRECOGNITION_SRC_COMMONFUNC_H_

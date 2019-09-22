@@ -31,6 +31,21 @@ class SpecialCenterStarOnSkySphereGroup {
   }
   void SetValidRegionRadio(float valid_region_radio) {
     valid_region_radio_ = valid_region_radio;
+    auto last_iter = stars_.begin();
+    for (auto iter = last_iter; iter != stars_.end(); ++iter) {
+      if (iter->second.angular_distance >= valid_region_radio_) {
+        if (iter == stars_.begin()) {
+          stars_.erase(iter);
+          iter = stars_.begin();
+          last_iter = iter;
+        } else {
+          stars_.erase(iter);
+          iter = last_iter;
+        }
+      } else {
+        last_iter = iter;
+      }
+    }
   }
  private:
   float valid_region_radio_;

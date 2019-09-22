@@ -63,12 +63,7 @@ class DescriptorConvDiff {
   friend bool operator<(const DescriptorConvDiff &l, const DescriptorConvDiff &r);
 };
 
-template<typename DescriptorT_>
-float diff(const DescriptorT_ &, const DescriptorT_ &) { return std::numeric_limits<float>::max(); }
-
-template<typename From_, typename To_>
-bool CalculateDescriptor(const From_ &, To_ &) { return false; }
-
-
+//template<typename From_, typename To_>
+//bool CalculateDescriptor(const From_ &, To_ &) { return false; }
 
 #endif //STARMAPRECOGNITION__DESCRIPTOR_H_

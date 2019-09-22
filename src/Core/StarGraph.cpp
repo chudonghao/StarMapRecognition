@@ -138,10 +138,10 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
     scsg.SetValidRegionRadio(min(-sky_sphere_pos.GetLongitude(), -sky_sphere_pos.GetLatitude()));
     // 设置中心星为当前星星
     scsg.SetSpecialCenter(stars_on_sky_sphere[current_star_name]);
-    LOG_TRACE << "special center: "<<stars_on_sky_sphere[current_star_name].GetName();
-    LOG_TRACE << "special center lon: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLongitude();
-    LOG_TRACE << "special center lat: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLatitude();
-    LOG_TRACE << "valid region radio: " << scsg.GetValidRegionRadio();
+    //LOG_TRACE << "special center: "<<stars_on_sky_sphere[current_star_name].GetName();
+    //LOG_TRACE << "special center lon: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLongitude();
+    //LOG_TRACE << "special center lat: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLatitude();
+    //LOG_TRACE << "valid region radio: " << scsg.GetValidRegionRadio();
     for (auto &star_on_sky_sphere_pair : stars_on_sky_sphere) {
       scsg.Add(star_on_sky_sphere_pair.first, star_on_sky_sphere_pair.second);
     }
