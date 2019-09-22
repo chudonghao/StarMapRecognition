@@ -9,6 +9,9 @@ void SpecialCenterStarOnSkySphereGroup::Add(const std::string &name, StarOnSkySp
   if (special_center_.GetName() == "") {
     LOG_WARNING << "Set special_center before add star.";
   }
+  if (special_center_.GetName() == star.GetName()) {
+    return;
+  }
   float ad = star.AngularDistance(special_center_);
   //LOG_TRACE << "ad: " << ad;
   stars_[name] = {ad, star};

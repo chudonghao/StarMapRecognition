@@ -23,27 +23,6 @@
 using namespace std;
 using namespace osg;
 
-//
-//void Convert(const StarTablePos &special_center, const StarTablePos &from, SkySpherePos &to) {
-//  auto rotate_a = Matrix::rotate(DegreesToRadians(special_center.a), Vec3d(0., 0., 1.));
-//  //auto rotate_axis_ny = Vec3d(0., -1., 0.)*rotate_a;
-//  auto rotate_b = Matrix::rotate(DegreesToRadians(special_center.b), Vec3d(0., -1., 0.));
-//  //Vec3d eye = Vec3d();
-//  //Vec3d center = Vec3d(1., 0., 0.)*rotate_b*rotate_a;
-//  Vec3d axis_y = Vec3d(0., 0., 1.)*rotate_b*rotate_a;
-//  Vec3d axis_x = Vec3d(0., -1., 0.)*rotate_b*rotate_a;
-//  auto rotate_a2 = Matrix::rotate(DegreesToRadians(from.a), Vec3d(0., 0., 1.));
-//  auto rotate_b2 = Matrix::rotate(DegreesToRadians(from.b), Vec3d(0., -1., 0.));
-//  Vec3d p = Vec3d(1., 0., 0.)*rotate_b2*rotate_a2;
-//  double angle = RadiansToDegrees(Radians(axis_x, p));
-//  double angle2 = RadiansToDegrees(Radians(axis_y, p));
-//  double lat, lon;
-//  lon = 90. - angle;
-//  lat = 90. - angle2;
-//  to.name = to_string(from.id);
-//  to.pos = Vec2d(lon, lat);
-//}
-//
 //void CreateStarOnSkySphereGroupWithSpecialCenter(const vector<StarGraphPos> &stars_on_graph,
 //                                                 double pixel_f,
 //                                                 const StarGraphPos &graph_center,
@@ -75,7 +54,7 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
   stars_.clear();
   graph_size_ = graph_size;
   graph_a_ = graph_a;
-  double pixel_f = (graph_size/2.)/tan(DegreesToRadians(graph_a)/2.);
+  double pixel_f = (graph_size / 2.) / tan(DegreesToRadians(graph_a) / 2.);
   pugi::xml_document xml_document;
   pugi::xml_parse_result result = xml_document.load_file(file_name.c_str());
   if (!result) {
@@ -111,7 +90,8 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
   // 以视点中心为0，0，将星星映射到SkySphere坐标
   std::map<string, StarOnSkySphere> stars_on_sky_sphere;
   for (auto &name_star_pair: stars_) {
-    StarOnSkySphere star_on_sky_sphere = name_star_pair.second.ToStarOnSkySphere(StarGraphPos(graph_size_/2., graph_size_/2.), pixel_f, graph_size_);
+    StarOnSkySphere star_on_sky_sphere =
+        name_star_pair.second.ToStarOnSkySphere(StarGraphPos(graph_size_ / 2., graph_size_ / 2.), pixel_f, graph_size_);
     stars_on_sky_sphere[name_star_pair.first] = star_on_sky_sphere;
     //LOG_TRACE << star_on_sky_sphere.GetName();
     //LOG_TRACE << star_on_sky_sphere.GetSkySpherePos().x();
@@ -124,7 +104,7 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
     SpecialCenterStarOnSkySphereGroup scsg;
     // 计算有效半径
     const StarGraphPos &special_center = current_star.GetStarGraphPos();
-    StarGraphPos graph_center = StarGraphPos(graph_size_/2., graph_size_/2.);
+    StarGraphPos graph_center = StarGraphPos(graph_size_ / 2., graph_size_ / 2.);
     StarGraphPos special_center_left_bottom(special_center.GetPixelX(), special_center.GetPixelY());
     if (special_center.GetPixelX() > graph_center.GetPixelX()) {
       special_center_left_bottom.SetPixelX(graph_size_ - special_center.GetPixelX());
@@ -169,6 +149,33 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
 }
 
 StarGraph::StarGraph() {}
+SpecialCenterStarOnSkySphereGroup StarGraph::GetMasterGroup() {
+  int max = 0;
+  string max_name;
+  for (auto &pair:stars_) {
+    auto &from = pair.second.GetSpecialStarGroup();
+    auto &stars = from.GetStaresOnSkyShphere();
+    int star_count = 0;
+    for (auto &star_struct:stars) {
+      if (from.GetSpecialCenter().GetName() == star_struct.second.star.GetName()) {
+        continue;
+      }
+      if (star_struct.second.angular_distance < pair.second.GetSpecialStarGroup().GetValidRegionRadio()) {
+        ++star_count;
+      } else {
+        //LOG_TRACE << star_struct.second.angular_distance;
+      }
+    }
+    if (star_count > max) {
+      max = star_count;
+      max_name = pair.first;
+    }
+  }
+  if (max) {
+    return stars_[max_name].GetSpecialStarGroup();
+  }
+  return SpecialCenterStarOnSkySphereGroup();
+}
 
 //void CreateStarOnSkySphereGroupWithSpecialCenter(const std::vector<StarTablePos> &stars,
 //                                                 const StarTablePos &special_center,

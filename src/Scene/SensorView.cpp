@@ -5,6 +5,7 @@
 #include "SensorView.h"
 #include "SensorCameraManipulator.h"
 #include "StarGroup.h"
+#include "../log.h"
 
 using namespace std;
 using namespace osg;
@@ -16,7 +17,7 @@ SensorView::SensorView(GraphicsContext *graphics_context) : graphics_context_(gr
   //second_camera->setClearMask(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
   camera_->setProjectionMatrixAsPerspective(12., 1., 100., 3000.);
   camera_->setComputeNearFarMode(Camera::ComputeNearFarMode::DO_NOT_COMPUTE_NEAR_FAR);
-  camera_->setClearColor(Vec4(0.1f,0.1f,0.1f,1.f));
+  camera_->setClearColor(Vec4(0.1f, 0.1f, 0.1f, 1.f));
   root_ = new Group;
   view_->setSceneData(root_);
 
@@ -73,5 +74,6 @@ void SensorView::OnCameraRotated(const osg::Vec3 &eye, const osg::Vec3 &center) 
   } else if (dir.y() <= 0.f) {
     lon += 360.f;
   }
-  target_hint_text_->setText(to_string(lon) + ":" + to_string(la));
+  LOG_INFO << "Sensor target: " << lon << ":" << la;
+  target_hint_text_->setText(to_string(int(lon)) + ":" + to_string(int(la)));
 }

@@ -31,9 +31,12 @@ class SpecialCenterStarOnSkySphereGroup {
   }
   void SetValidRegionRadio(float valid_region_radio) {
     valid_region_radio_ = valid_region_radio;
+    Shirk();
+  }
+  void Shirk() {
     auto last_iter = stars_.begin();
     for (auto iter = last_iter; iter != stars_.end(); ++iter) {
-      if (iter->second.angular_distance >= valid_region_radio_) {
+      if (iter->second.angular_distance >= valid_region_radio_ || special_center_.GetName() == iter->first) {
         if (iter == stars_.begin()) {
           stars_.erase(iter);
           iter = stars_.begin();
@@ -47,8 +50,9 @@ class SpecialCenterStarOnSkySphereGroup {
       }
     }
   }
+  int Size() const { return stars_.size(); }
  private:
-  float valid_region_radio_;
+  float valid_region_radio_{};
   StarOnSkySphere special_center_;
   std::map<std::string, AngularDistanceStar> stars_;
 };

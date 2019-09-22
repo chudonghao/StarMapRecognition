@@ -11,6 +11,7 @@ class Planet;
 class StarGroup : public osg::Group {
  public:
   explicit StarGroup(float radio);
+  void HighLight(const std::string &name,osg::Vec4 color);
  private:
   void InitPlanets();
   void InitLongitudeLatitude();

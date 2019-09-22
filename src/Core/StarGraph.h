@@ -11,6 +11,7 @@
 #include "StarPos.h"
 #include "StarOnGraph.h"
 #include "Descriptor2.h"
+#include "Descriptor3.h"
 #include "DescriptorConverter.h"
 
 //class SkySpherePosGroupWithSpecialCenter {
@@ -59,6 +60,8 @@ class StarGraph {
   bool InitFrom(const std::string &file_name, double graph_size, double graph_a);
   //Descriptor GetDescriptor();
 
+  SpecialCenterStarOnSkySphereGroup GetMasterGroup();
+
   template<int s1, int s2>
   std::map<std::string, Descriptor2<s1, s2>> *GetDescriptor2s() {
     // TODO
@@ -67,7 +70,23 @@ class StarGraph {
       DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor2<s1, s2>> converter;
       Descriptor2<s1, s2> *r = new Descriptor2<s1, s2>;
       if (converter(name_star_pair.second.GetSpecialStarGroup(), *r, true)) {
-        if (r->GetStarNum() > 0){
+        if (r->GetStarNum() > 0) {
+          res->emplace(name_star_pair.first, *r);
+        }
+      }
+      delete r;
+    }
+    return res;
+  }
+  template<int s1>
+  std::map<std::string, Descriptor3<s1>> *GetDescriptor3() {
+    // TODO
+    Descriptor3<s1> res;
+    for (auto &name_star_pair:stars_) {
+      DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<s1>> converter;
+      Descriptor3<s1> *r = new Descriptor3<s1>;
+      if (converter(name_star_pair.second.GetSpecialStarGroup(), *r)) {
+        if (r->GetStarNum() > 0) {
           res->emplace(name_star_pair.first, *r);
         }
       }

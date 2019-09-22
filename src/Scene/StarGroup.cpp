@@ -126,3 +126,6 @@ void StarGroup::InitLongitudeLatitude() {
     mt->setMatrix(Matrix::rotate(Vec3(0., 0., 1.), Vec3(1., -1., 0.)));
   }
 }
+void StarGroup::HighLight(const std::string &name, osg::Vec4 color) {
+  id_planet_map_[name]->PushColor(color);
+}
