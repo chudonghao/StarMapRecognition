@@ -98,17 +98,17 @@ int main(int argc, char *argv[]) {
 
   StarGraph star_graph;
   //star_graph.InitFrom("xingtu01.xml", 512., 12.);
-  star_graph.InitFrom("xingtu03.xml", 512., 12.);
+  star_graph.InitFrom("xingtu02.xml", 512., 12.);
   //star_graph.InitFrom("xingtu03.xml", 512., 12.);
   //star_graph.InitFrom("xingtu04.xml", 512., 12.);
   //star_graph.InitFrom("xingtu05.xml", 512., 12.);
   //star_graph.InitFrom("xingtu06.xml", 512., 12.);
   //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
-  star_graph.DebugShowToSkySpherePos(string("xingtu03.xml"));
+  star_graph.DebugShowToSkySpherePos(string("xingtu02.xml"));
 
-  star_graph.DebugInitFromStarTable(SkySpherePos(90., 0.), 512, 12);
-  star_graph.DebugShowToSkySpherePos(string("(90.,0.)"));
+  //star_graph.DebugInitFromStarTable(SkySpherePos(90., 0.), 512, 12);
+  //star_graph.DebugShowToSkySpherePos(string("(90.,0.)"));
   //star_group->addChild(star_graph.DebugShow());
 
   multimap<float, string> match1;
@@ -399,10 +399,10 @@ int main(int argc, char *argv[]) {
     }
   }
   StarGraph star_graph1;
-  SkySpherePos pos = SkySpherePos(StarTable::instance()->Table()["1197"]);
+  SkySpherePos pos = SkySpherePos(StarTable::instance()->Table()[match1.rbegin()->second]);
   star_graph1.DebugInitFromStarTable(pos, 512, 12.);
   star_graph1.DebugShow(string("Match"));
-  (*database)["1197"].DebugShow();
+  (*database)[match1.rbegin()->second].DebugShow();
 
   star_graph.DebugShow(string("From"));
 

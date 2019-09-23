@@ -82,9 +82,9 @@ void Convert(const SkySpherePos &special_center, const SkySpherePos &from, SkySp
   auto lon_rad = asin(p.y()/l1);
   auto lat_rad = atan(p.z()/l1);
   to = Vec2d(RadiansToDegrees(lon_rad), RadiansToDegrees(lat_rad));
-  LOG_TRACE << special_center.x() << ":" << special_center.y();
-  LOG_TRACE << from.x() << ":" << from.y();
-  LOG_TRACE << to.GetLongitude() << ":" << to.GetLatitude();
+  //LOG_TRACE << special_center.x() << ":" << special_center.y();
+  //LOG_TRACE << from.x() << ":" << from.y();
+  //LOG_TRACE << to.GetLongitude() << ":" << to.GetLatitude();
 }
 
 double SkySpherePos::AngularDistance(const SkySpherePos &pos2) {

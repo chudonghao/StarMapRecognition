@@ -129,41 +129,42 @@ bool DescriptorConverter<SpecialCenterStarOnSkySphereGroup,
     }
   }
 
-  // 使用PCA计算方向因子
-  auto data_mat = Mat_<double>(2, from.Size() + 1);
-  data_mat.at<double>(0, 0) = 0;// center
-  data_mat.at<double>(1, 0) = 0;
-  int i = 1;
+  //// 使用PCA计算方向因子
+  //auto data_mat = Mat_<double>(2, from.Size() + 1);
+  //data_mat.at<double>(0, 0) = 0;// center
+  //data_mat.at<double>(1, 0) = 0;
+  //int i = 1;
+  //for (const auto &star  : from.GetStaresOnSkyShphere()) {
+  //  data_mat.at<double>(0, i) = star.second.star.GetSkySpherePos().GetLongitude();
+  //  data_mat.at<double>(1, i) = star.second.star.GetSkySpherePos().GetLatitude();
+  //  ++i;
+  //}
+  //Mat data = std::move(data_mat);
+  //
+  //PCA pca(data, Mat(), CV_PCA_DATA_AS_COL, 1);
+  //Mat dst = pca.project(data);
+  //double tar = 0.;
+  //for (int i = 0; i < dst.size[0]; ++i) {
+  //  tar += dst.at<double>(i);
+  //}
+  //
+  ////LOG_TRACE << tar;
+  ////LOG_TRACE << pca.project(data);
+  ////LOG_TRACE << pca.eigenvectors;
+  ////LOG_TRACE << pca.mean;
+  ////LOG_TRACE << pca.eigenvalues;
+  //osg::Vec2d dir(pca.eigenvectors.at<double>(0), pca.eigenvectors.at<double>(1));
+  //dir *= tar;
+  //dir.normalize();
+
+  // 使用平均位置计算方向因子
+  osg::Vec2d dir;
   for (const auto &star  : from.GetStaresOnSkyShphere()) {
-    data_mat.at<double>(0, i) = star.second.star.GetSkySpherePos().GetLongitude();
-    data_mat.at<double>(1, i) = star.second.star.GetSkySpherePos().GetLatitude();
-    ++i;
+    dir.x() += star.second.star.GetSkySpherePos().GetLongitude() - from.GetSpecialCenter().GetSkySpherePos().GetLongitude();
+    dir.y() += star.second.star.GetSkySpherePos().GetLatitude()- from.GetSpecialCenter().GetSkySpherePos().GetLatitude();
   }
-  Mat data = std::move(data_mat);
-
-  PCA pca(data, Mat(), CV_PCA_DATA_AS_COL, 1);
-  Mat dst = pca.project(data);
-  double tar = 0.;
-  for (int i = 0; i < dst.size[0]; ++i) {
-    tar += dst.at<double>(i);
-  }
-
-  //LOG_TRACE << tar;
-  //LOG_TRACE << pca.project(data);
-  //LOG_TRACE << pca.eigenvectors;
-  //LOG_TRACE << pca.mean;
-  //LOG_TRACE << pca.eigenvalues;
-  osg::Vec2d dir(pca.eigenvectors.at<double>(0), pca.eigenvectors.at<double>(1));
-  dir *= tar;
   dir.normalize();
   des.SetSpecialDir(dir);
-
-  //// 使用平均位置计算方向因子
-  //osg::Vec3d dir;
-  //for (const auto &star  : from.GetStaresOnSkyShphere()) {
-  //  dir.x() += star.second.star.GetSkySpherePos().GetLongitude();
-  //  dir.y() += star.second.star.GetSkySpherePos().GetLatitude();
-  //}
 
   Matrixd rotate = Matrixd::rotate(osg::Vec3d(dir.x(), dir.y(), 0.), osg::Vec3d(1., 0., 0.));
   float *data_ = des.GetSpecials();
