@@ -96,7 +96,11 @@ int main(int argc, char *argv[]) {
   master_view.ShowSensorCamera(sensor_view.GetCamera());
   sensor_view.SetStarNode(star_group);
 
-  StarGraph star_graph;
+  viewer->addView(master_view.GetView());
+  viewer->addView(sensor_view.GetView());
+  viewer->realize();
+  viewer->frame();
+  //StarGraph star_graph;
   //star_graph.InitFrom("xingtu01.xml", 512., 12.);
   //star_graph.DebugShow_ToSkySpherePos(string("xingtu01.xml"));
   //star_graph.InitFrom("xingtu02.xml", 512., 12.);
@@ -109,8 +113,8 @@ int main(int argc, char *argv[]) {
   //star_graph.DebugShow_ToSkySpherePos(string("xingtu05.xml"));
   //star_graph.InitFrom("xingtu06.xml", 512., 12.);
   //star_graph.DebugShow_ToSkySpherePos(string("xingtu06.xml"));
-  star_graph.InitFrom("xingtu07.xml", 1024., 20.);
-  star_graph.DebugShow_ToSkySpherePos(string("xingtu07.xml"));
+  //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu07.xml"));
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
   //star_graph.DebugShow_ToSkySpherePos(string("xingtu08.xml"));
 
@@ -120,18 +124,20 @@ int main(int argc, char *argv[]) {
 
 
 #if 0
+
   std::map<std::string, Descriptor2<80, 16>> *dess1 = star_graph.GetDescriptor2s<80, 16>();
 
   std::map<std::string, Descriptor2<80, 16>> *dess2 = StarTable::instance()->CreateDescriptorDatabase<80, 16>();
 
+  multimap<float, string> match1;
   multimap<float, string> match2;
-  set<string> match3;
+  set<string> matched;
   set<string> match2_input;
   for (auto &des1:*dess1) {
     LOG_TRACE << des1.first << ":" << des1.second.GetStarNum();
     match1.clear();
     match2.clear();
-    match3.clear();
+    matched.clear();
     match2_input.clear();
     for (auto &des2:*dess2) {
       float similarity1 = des1.second.Similarity1(des2.second);
@@ -176,7 +182,7 @@ int main(int argc, char *argv[]) {
       } else {
         //LOG_TRACE << max << ":" << iter->first << ":" << i;
       }
-      match3.insert(iter->second);
+      matched.insert(iter->second);
       ++i;
     }
     LOG_TRACE << i;
@@ -223,8 +229,8 @@ int main(int argc, char *argv[]) {
         Vec3(-2400.*3, 0., 4000.),
     };
     static int iii = 0;
-    if (match3.size() <= 30) {
-      for (auto &name  : match3) {
+    if (matched.size() <= 30) {
+      for (auto &name  : matched) {
         osg::Vec2d pos = StarOnSkySphere(StarTable::instance()->Table()[name]).GetSkySpherePos();
         auto rotate_a = Matrix::rotate(DegreesToRadians(pos.x()), Vec3d(0., 0., 1.));
         auto rotate_b = Matrix::rotate(DegreesToRadians(pos.y()), Vec3d(0., -1., 0.));
@@ -343,13 +349,41 @@ int main(int argc, char *argv[]) {
   //////////////////////////////////////
   // Descriptor Config
   constexpr int precise = 101;
+  StarGraph star_graph3;
+  //string star_graph_id = "01";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "02";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "03";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "04";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "05";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "06";
+  //double star_graph_size = 512.;
+  //double star_graph_fov = 12.;
+  //string star_graph_id = "07";
+  //double star_graph_size = 1024.;
+  //double star_graph_fov = 20.;
+  string star_graph_id = "08";
+  double star_graph_size = 1024.;
+  double star_graph_fov = 20.;
+  star_graph3.InitFrom(string("xingtu") + star_graph_id + ".xml", star_graph_size, star_graph_fov);
+  //star_graph3.DebugInitFromStarTable(StarSkySpherePos(180., 31.), 512., 12.);
+  star_graph3.DebugShow_ToSkySpherePos(string(star_graph_id));
   //////////////////////////////////////
   // match result set
   multimap<float, string> matches;
 
   //////////////////////////////////////
   // Get descriptor for test star
-  auto master_star_tested_group = star_graph.GetMasterGroup();
+  auto master_star_tested_group = star_graph3.GetMasterGroup();
   master_star_tested_group.Shirk();
   DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<precise>> converter;
   Descriptor3<precise> star_tested_des;
@@ -363,19 +397,6 @@ int main(int argc, char *argv[]) {
     float sim = star_tested_des.Similarity(item.second);
     matches.emplace(sim, item.first);
   }
-  //for (auto &star:star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
-  //  Planet *p = new Planet(star.second.star.GetName(), Vec4(1.f, 0.f, 0.f, 1.f), 10.f);
-  //
-  //  osg::Vec2d pos = star.second.star.GetSkySpherePos();
-  //  auto rotate_a = Matrix::rotate(DegreesToRadians(pos.x()), Vec3d(0., 0., 1.));
-  //  auto rotate_b = Matrix::rotate(DegreesToRadians(pos.y()), Vec3d(0., -1., 0.));
-  //  Matrix m = Matrix::translate(Vec3(2000., 0., 0.)) * rotate_b * rotate_a;
-  //  MatrixTransform *mt = new MatrixTransform();
-  //  mt->setMatrix(m);
-  //  mt->addChild(p);
-  //  star_group->addChild(mt);
-  //}
-
   if (matches.empty()) {
     LOG_WARNING << "Something Wrong.";
   } else {
@@ -410,7 +431,7 @@ int main(int argc, char *argv[]) {
     Matrix rotate_lat = Matrix::rotate(DegreesToRadians(star_matched_on_sky_sphere.GetSkySpherePos().GetLatitude()), Vec3(0.f, -1.f, 0.f));
 
     // Draw tested stars
-    auto star_group_relative_to_view_center = star_graph.GetStarGroupRelativeToViewCenter();
+    auto star_group_relative_to_view_center = star_graph3.GetStarGroupRelativeToViewCenter();
     for (auto &star:star_group_relative_to_view_center.GetStaresOnSkyShphere()) {
       auto &star_on_sky_sphere_rel = star.second.star;
 
@@ -431,32 +452,43 @@ int main(int argc, char *argv[]) {
     D_ = D_*rotate_0*rotate_1*rotate_lat*rotate_lon;
     D.FromWorldPosition(D_);
 
+    stringstream ss_match_list;
+    int count = 0;
+    for (auto pair_iter = matches.rbegin(); pair_iter != matches.rend(); ++pair_iter) {
+      auto &star_data = StarTable::instance()->Table()[pair_iter->second];
+      ss_match_list << "Star: " << star_data.id << "(" << star_data.a << "," << star_data.b << "," << star_data.l << ")" << " < > Value: " << pair_iter->first << "\n";
+      ++count;
+      if (count >= 10) {
+        ss_match_list << "...\n";
+        break;
+      }
+    }
     LOG_INFO << "\n" <<
              "=========================Test==========================\n" <<
              "Testing star: id=" << master_star_tested_group.GetSpecialCenter().GetName() << "\n" <<
              "Companion star size: " << master_star_tested_group.Size() << "\n" <<
              "Valid region radio: " <<
              master_star_tested_group.GetValidRegionRadio() << "\n" <<
+             "=========================MatchList=====================\n" <<
+             ss_match_list.str() <<
              "=========================Match=========================\n" <<
              "Matched star: id=" << star_matched_id << " longitude=" << star_matched_longitude << " latitude=" << star_matched_latitude << "\n" <<
              "Match reliability: " << match_reliability << " " <<
-             "(" << matches.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
+             "(" << matches.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph3.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
              "=========================Result========================\n" <<
              "Sensor direction: longitude=" << D.GetLongitude() << " latitude=" << D.GetLatitude();
 
     ///////////////////////////////////////////////////////////////////////////
     // Display Descriptor and graph
     StarGraph star_matched_graph;
-    star_matched_graph.DebugInitFromStarTable(D, 512, 12.);
+    star_matched_graph.DebugInitFromStarTable(D, star_graph_size, star_graph_fov);
     star_matched_des.DebugShow("Matched");
     star_matched_graph.DebugShow(string("Matched"));
 
-    star_graph.DebugShow(string("Tested"));
+    star_graph3.DebugShow(string("Tested"));
     star_tested_des.DebugShow("Tested");
   }
 #endif
-  viewer->addView(master_view.GetView());
-  viewer->addView(sensor_view.GetView());
   thread t([]() {
     cv::waitKey(0);
   });

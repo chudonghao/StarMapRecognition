@@ -33,6 +33,10 @@ std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *
   shared_ptr<multimap<double, StarOnSkySphere>> angular_distance_star_map(new multimap<double, StarOnSkySphere>);
   int i = 0;
   for (auto &name_star_pair:star_table_) {
+    if (i == 0) {
+      LOG_TRACE << "star id: " << name_star_pair.first;
+      LOG_TRACE << "matched star: " << angular_distance_star_map->size();
+    }
     if (i % 100 == 0) {
       LOG_INFO << i << '/' << star_table_.size();
     }
@@ -45,10 +49,6 @@ std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *
       double angular_distance = StarSkySpherePos(name_star_pair.second).AngularDistance(StarSkySpherePos(star1.second));
       if (angular_distance < 10.)
         angular_distance_star_map->insert(make_pair(star1.second.l, StarOnSkySphere(star1.second)));
-    }
-    if (i == 0) {
-      LOG_TRACE << "star id: " << name_star_pair.first;
-      LOG_TRACE << "matched star: " << angular_distance_star_map->size();
     }
     auto pair_iter = angular_distance_star_map->begin();
     for (auto &ad_star_pair:*angular_distance_star_map) {
@@ -78,6 +78,10 @@ std::map<std::string, Descriptor3<special_size>> *StarTable::CreateDescriptor3Da
   shared_ptr<multimap<double, StarOnSkySphere>> brightness_star_map(new multimap<double, StarOnSkySphere>);
   int i = 0;
   for (auto &name_star_pair:star_table_) {
+    if (i == 0) {
+      LOG_TRACE << "star id: " << name_star_pair.first;
+      LOG_TRACE << "matched star: " << brightness_star_map->size();
+    }
     if (i % 100 == 0) {
       LOG_INFO << i << '/' << star_table_.size();
     }
@@ -90,10 +94,6 @@ std::map<std::string, Descriptor3<special_size>> *StarTable::CreateDescriptor3Da
       double angular_distance = StarSkySpherePos(name_star_pair.second).AngularDistance(StarSkySpherePos(star1.second));
       if (angular_distance < region_radio)
         brightness_star_map->insert(make_pair(star1.second.l, StarOnSkySphere(star1.second)));
-    }
-    if (i == 0) {
-      LOG_TRACE << "star id: " << name_star_pair.first;
-      LOG_TRACE << "matched star: " << brightness_star_map->size();
     }
 
     // 选出最亮的若干颗

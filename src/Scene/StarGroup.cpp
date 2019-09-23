@@ -20,8 +20,8 @@ void StarGroup::InitPlanets() {
   for (const auto &item : StarTable::instance()->Table()) {
     auto *mt = new MatrixTransform;
     star_group->addChild(mt);
-    //auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), exp(log(1.3797)*(-item.second.l + 6.))*3.f);
-    auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), 10.f);
+    auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), exp(log(1.3797)*(-item.second.l + 6.))*3.f);
+    //auto *planet = new Planet(item.second.id, Vec4(1.f, 1.f, 1.f, 1.f), 10.f);
     mt->addChild(planet);
 
     id_planet_map_[item.second.id] = planet;
