@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   //star_graph.DebugShow_ToSkySpherePos(string("(90.,0.)"));
   //star_group->addChild(star_graph.DebugShow());
 
-  multimap<float, string> match1;
+
 #if 0
   std::map<std::string, Descriptor2<80, 16>> *dess1 = star_graph.GetDescriptor2s<80, 16>();
 
@@ -340,22 +340,28 @@ int main(int argc, char *argv[]) {
   }
 #endif
 #if 1
+  //////////////////////////////////////
+  // Descriptor Config
   constexpr int precise = 101;
-  auto master_group = star_graph.GetMasterGroup();
-  master_group.Shirk();
+  //////////////////////////////////////
+  // match result set
+  multimap<float, string> matches;
+
+  //////////////////////////////////////
+  // Get descriptor for test star
+  auto master_star_tested_group = star_graph.GetMasterGroup();
+  master_star_tested_group.Shirk();
   DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<precise>> converter;
   Descriptor3<precise> star_tested_des;
-  converter(master_group, star_tested_des);
-  LOG_DEBUG << master_group.GetSpecialCenter().GetName() << ":" << master_group.Size() << ":"
-            << master_group.GetValidRegionRadio();
+  converter(master_star_tested_group, star_tested_des);
 
   auto star_table_des_set =
-      StarTable::instance()->CreateDescriptor3Database<precise>(master_group.GetValidRegionRadio(),
-                                                                master_group.Size());
+      StarTable::instance()->CreateDescriptor3Database<precise>(master_star_tested_group.GetValidRegionRadio(),
+                                                                master_star_tested_group.Size());
 
   for (auto &item:*star_table_des_set) {
     float sim = star_tested_des.Similarity(item.second);
-    match1.emplace(sim, item.first);
+    matches.emplace(sim, item.first);
   }
   //for (auto &star:star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
   //  Planet *p = new Planet(star.second.star.GetName(), Vec4(1.f, 0.f, 0.f, 1.f), 10.f);
@@ -370,20 +376,20 @@ int main(int argc, char *argv[]) {
   //  star_group->addChild(mt);
   //}
 
-  if (match1.empty()) {
+  if (matches.empty()) {
     LOG_WARNING << "Something Wrong.";
   } else {
     auto star_tested_rel_on_sky_sphere = star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetSpecialCenter();
     auto star_tested_name = star_tested_rel_on_sky_sphere.GetName();
 
-    auto star_matched_name = match1.rbegin()->second;
+    auto star_matched_name = matches.rbegin()->second;
     auto &star_matched_des = (*star_table_des_set)[star_matched_name];
     auto star_matched_on_sky_sphere = StarOnSkySphere(StarTable::instance()->Table()[star_matched_name]);
     auto star_matched_id = star_matched_name;
     auto star_matched_longitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLongitude();
     auto star_matched_latitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLatitude();
     // TODO more specialized
-    auto match_reliability = star_tested_des.GetStarNum() >= 5 ? match1.rbegin()->first/(star_tested_des.GetStarNum()*(1.6)) : match1.rbegin()->first/5.;
+    auto match_reliability = star_tested_des.GetStarNum() >= 5 ? matches.rbegin()->first/(star_tested_des.GetStarNum()*(1.6)) : matches.rbegin()->first/5.;
 
     ///////////////////////////////////////////////////////////////////////////
     // Highlight matched stars on sky sphere
@@ -424,12 +430,19 @@ int main(int argc, char *argv[]) {
     StarSkySpherePos D;
     D_ = D_*rotate_0*rotate_1*rotate_lat*rotate_lon;
     D.FromWorldPosition(D_);
+
     LOG_INFO << "\n" <<
-             "=======================Result========================" <<
-             "Tested star: id=" << star_tested_name << " " <<
-             "Matched star: id=" << star_matched_id << " longitude=" << star_matched_longitude << " latitude=" << star_matched_latitude << " " <<
+             "=========================Test==========================\n" <<
+             "Testing star: id=" << master_star_tested_group.GetSpecialCenter().GetName() << "\n" <<
+             "Companion star size: " << master_star_tested_group.Size() << "\n" <<
+             "Valid region radio: " <<
+             master_star_tested_group.GetValidRegionRadio() << "\n" <<
+             "=========================Match=========================\n" <<
+             "Matched star: id=" << star_matched_id << " longitude=" << star_matched_longitude << " latitude=" << star_matched_latitude << "\n" <<
              "Match reliability: " << match_reliability << " " <<
-             "(" << match1.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph.GetStarGroupRelativeToViewCenter().Size() << ")";
+             "(" << matches.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
+             "=========================Result========================\n" <<
+             "Sensor direction: longitude=" << D.GetLongitude() << " latitude=" << D.GetLatitude();
 
     ///////////////////////////////////////////////////////////////////////////
     // Display Descriptor and graph
