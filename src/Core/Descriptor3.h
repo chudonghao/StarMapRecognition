@@ -59,7 +59,7 @@ class Descriptor3 {
     }
     LOG_DEBUG << ss.str();
   }
-  void DebugShow() {
+  void DebugShow(const std::string &debug_name) {
     using namespace cv;
     using namespace std;
     Mat m(size, size, CV_32FC3, Scalar(0., 0., 0.));
@@ -73,7 +73,7 @@ class Descriptor3 {
         //m.at<Vec3f>(j, i)[2] = 255.;
       }
     }
-    LOG_DEBUG << special_dir_.x() << special_dir_.y();
+    //LOG_DEBUG << special_dir_.x() << special_dir_.y();
     double rad = Radians(special_dir_, osg::Vec2d(1., 0.));
     if (special_dir_.y() < 0.) {
       rad = 2.*M_PI - rad;
@@ -81,13 +81,13 @@ class Descriptor3 {
     Mat rotate = getRotationMatrix2D(Point2f(size/2, size/2), osg::RadiansToDegrees(rad), 1.);
     warpAffine(m.clone(), m, rotate, Size(size, size));
     line(m, Point((special_dir_.x() + 1.)*m.rows/2., (special_dir_.y() + 1.)*m.cols/2.), Point(size/2, size/2), Scalar(0., 1., 1.), 1);
+    //LOG_DEBUG << Point((special_dir_.y() + 1.)*m.rows/2., (special_dir_.x() + 1.)*m.cols/2.);
     flip(m, m, 0);
     //flip(m, m, 1);
     while (m.rows < 400)
       pyrUp(m, m);
-    LOG_DEBUG << Point((special_dir_.y() + 1.)*m.rows/2., (special_dir_.x() + 1.)*m.cols/2.);
     static int i = 0;
-    imshow(string("Descriptor3") + to_string(i), m);
+    imshow(debug_name + string("Descriptor3:") + to_string(i), m);
     ++i;
   }
  private:

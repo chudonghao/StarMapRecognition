@@ -98,17 +98,24 @@ int main(int argc, char *argv[]) {
 
   StarGraph star_graph;
   //star_graph.InitFrom("xingtu01.xml", 512., 12.);
-  star_graph.InitFrom("xingtu02.xml", 512., 12.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu01.xml"));
+  //star_graph.InitFrom("xingtu02.xml", 512., 12.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu02.xml"));
   //star_graph.InitFrom("xingtu03.xml", 512., 12.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu03.xml"));
   //star_graph.InitFrom("xingtu04.xml", 512., 12.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu04.xml"));
   //star_graph.InitFrom("xingtu05.xml", 512., 12.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu05.xml"));
   //star_graph.InitFrom("xingtu06.xml", 512., 12.);
-  //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu06.xml"));
+  star_graph.InitFrom("xingtu07.xml", 1024., 20.);
+  star_graph.DebugShow_ToSkySpherePos(string("xingtu07.xml"));
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
-  star_graph.DebugShowToSkySpherePos(string("xingtu02.xml"));
+  //star_graph.DebugShow_ToSkySpherePos(string("xingtu08.xml"));
 
-  //star_graph.DebugInitFromStarTable(SkySpherePos(90., 0.), 512, 12);
-  //star_graph.DebugShowToSkySpherePos(string("(90.,0.)"));
+  //star_graph.DebugInitFromStarTable(StarSkySpherePos(90., 0.), 512, 12);
+  //star_graph.DebugShow_ToSkySpherePos(string("(90.,0.)"));
   //star_group->addChild(star_graph.DebugShow());
 
   multimap<float, string> match1;
@@ -337,23 +344,20 @@ int main(int argc, char *argv[]) {
   auto master_group = star_graph.GetMasterGroup();
   master_group.Shirk();
   DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<precise>> converter;
-  Descriptor3<precise> descriptor_3;
-  converter(master_group, descriptor_3);
+  Descriptor3<precise> star_tested_des;
+  converter(master_group, star_tested_des);
   LOG_DEBUG << master_group.GetSpecialCenter().GetName() << ":" << master_group.Size() << ":"
             << master_group.GetValidRegionRadio();
 
-  auto database =
+  auto star_table_des_set =
       StarTable::instance()->CreateDescriptor3Database<precise>(master_group.GetValidRegionRadio(),
                                                                 master_group.Size());
 
-  for (auto &item:*database) {
-    float sim = descriptor_3.Similarity(item.second);
+  for (auto &item:*star_table_des_set) {
+    float sim = star_tested_des.Similarity(item.second);
     match1.emplace(sim, item.first);
   }
-
-  LOG_TRACE << descriptor_3.GetSpecialCenterStarOnSkySphereGroup().Size();
-  descriptor_3.DebugShow();
-  //for (auto &star:descriptor_3.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
+  //for (auto &star:star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
   //  Planet *p = new Planet(star.second.star.GetName(), Vec4(1.f, 0.f, 0.f, 1.f), 10.f);
   //
   //  osg::Vec2d pos = star.second.star.GetSkySpherePos();
@@ -366,47 +370,77 @@ int main(int argc, char *argv[]) {
   //  star_group->addChild(mt);
   //}
 
-  int i = 0;
-  for (auto iter = match1.rbegin(); iter != match1.rend(); ++iter) {
-    auto star_data = StarTable::instance()->Table()[iter->second];
-    LOG_TRACE << iter->second << ":" << iter->first << "\t" << star_data.a << ":" << star_data.b;
+  if (match1.empty()) {
+    LOG_WARNING << "Something Wrong.";
+  } else {
+    auto star_tested_rel_on_sky_sphere = star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetSpecialCenter();
+    auto star_tested_name = star_tested_rel_on_sky_sphere.GetName();
 
-    LOG_TRACE << (*database)[iter->second].GetSpecialCenterStarOnSkySphereGroup().Size();
-    for (auto &star:(*database)[iter->second].GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
+    auto star_matched_name = match1.rbegin()->second;
+    auto &star_matched_des = (*star_table_des_set)[star_matched_name];
+    auto star_matched_on_sky_sphere = StarOnSkySphere(StarTable::instance()->Table()[star_matched_name]);
+    auto star_matched_id = star_matched_name;
+    auto star_matched_longitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLongitude();
+    auto star_matched_latitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLatitude();
+    // TODO more specialized
+    auto match_reliability = star_tested_des.GetStarNum() >= 5 ? match1.rbegin()->first/(star_tested_des.GetStarNum()*(1.6)) : match1.rbegin()->first/5.;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Highlight matched stars on sky sphere
+    for (auto &star:star_matched_des.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
       star_group->HighLight(star.second.star.GetName(), Vec4(0.f, 1.f, 0.f, 1.f));
     }
-    Vec2d dir1 = descriptor_3.GetSpecialDir();
-    Vec2d dir2 = (*database)[iter->second].GetSpecialDir();
-    StarOnSkySphere s(StarTable::instance()->Table()[iter->second]);
-    Matrix rotate_1 = Matrix::rotate(Vec3d(0., -dir2.x(), dir2.y()), Vec3d(0., -dir1.x(), dir1.y()));
-    Matrix rotate_lon = Matrix::rotate(DegreesToRadians(s.GetSkySpherePos().GetLongitude()), Vec3(0.f, 0.f, 1.f));
-    Matrix rotate_lat = Matrix::rotate(DegreesToRadians(s.GetSkySpherePos().GetLatitude()), Vec3(0.f, -1.f, 0.f));
 
-    for (auto &star:descriptor_3.GetSpecialCenterStarOnSkySphereGroup().GetStaresOnSkyShphere()) {
-      Planet *p = new Planet(star.second.star.GetName(), Vec4(1.f, 0.f, 0.f, 1.f), 10.f);
-      osg::Vec2d pos = star.second.star.GetSkySpherePos();
+    ///////////////////////////////////////////////////////////////////////////
+    // Display tested star on sky sphere
+    Vec2d dir1 = star_tested_des.GetSpecialDir();
+    Vec2d dir2 = star_matched_des.GetSpecialDir();
+
+    // Rotate to 0 0
+    Matrix rotate_0 = Matrix::rotate(star_tested_rel_on_sky_sphere.GetSkySpherePos().WorldPosition(1.), Vec3d(1., 0., 0.));
+    // Rotate special dir
+    Matrix rotate_1 = Matrix::rotate(Vec3d(0., -dir2.x(), dir2.y()), Vec3d(0., -dir1.x(), dir1.y()));
+    Matrix rotate_lon = Matrix::rotate(DegreesToRadians(star_matched_on_sky_sphere.GetSkySpherePos().GetLongitude()), Vec3(0.f, 0.f, 1.f));
+    Matrix rotate_lat = Matrix::rotate(DegreesToRadians(star_matched_on_sky_sphere.GetSkySpherePos().GetLatitude()), Vec3(0.f, -1.f, 0.f));
+
+    // Draw tested stars
+    auto star_group_relative_to_view_center = star_graph.GetStarGroupRelativeToViewCenter();
+    for (auto &star:star_group_relative_to_view_center.GetStaresOnSkyShphere()) {
+      auto &star_on_sky_sphere_rel = star.second.star;
+
+      Planet *p = new Planet(star_on_sky_sphere_rel.GetName(), Vec4(1.f, 0.f, 0.f, 1.f), 10.f);
+      osg::Vec2d pos = star_on_sky_sphere_rel.GetSkySpherePos();
       auto rotate_a = Matrix::rotate(DegreesToRadians(pos.x()), Vec3d(0., 0., 1.));
       auto rotate_b = Matrix::rotate(DegreesToRadians(pos.y()), Vec3d(0., -1., 0.));
       Matrix m = Matrix::translate(Vec3(2000., 0., 0.))*rotate_b*rotate_a*Matrix::scale(Vec3(1.005f, 1.005f, 1.005f));
       MatrixTransform *mt = new MatrixTransform();
-      mt->setMatrix(m*rotate_1*rotate_lat*rotate_lon);
+      mt->setMatrix(m*rotate_0*rotate_1*rotate_lat*rotate_lon);
       mt->addChild(p);
       star_group->addChild(mt);
     }
-    ++i;
-    if (i == 10) {
-      break;
-    }
+    ///////////////////////////////////////////
+    // Show result
+    Vec3d D_ = Vec3d(1., 0., 0.);
+    StarSkySpherePos D;
+    D_ = D_*rotate_0*rotate_1*rotate_lat*rotate_lon;
+    D.FromWorldPosition(D_);
+    LOG_INFO << "\n" <<
+             "=======================Result========================" <<
+             "Tested star: id=" << star_tested_name << " " <<
+             "Matched star: id=" << star_matched_id << " longitude=" << star_matched_longitude << " latitude=" << star_matched_latitude << " " <<
+             "Match reliability: " << match_reliability << " " <<
+             "(" << match1.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph.GetStarGroupRelativeToViewCenter().Size() << ")";
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Display Descriptor and graph
+    StarGraph star_matched_graph;
+    star_matched_graph.DebugInitFromStarTable(D, 512, 12.);
+    star_matched_des.DebugShow("Matched");
+    star_matched_graph.DebugShow(string("Matched"));
+
+    star_graph.DebugShow(string("Tested"));
+    star_tested_des.DebugShow("Tested");
   }
-  StarGraph star_graph1;
-  SkySpherePos pos = SkySpherePos(StarTable::instance()->Table()[match1.rbegin()->second]);
-  star_graph1.DebugInitFromStarTable(pos, 512, 12.);
-  star_graph1.DebugShow(string("Match"));
-  (*database)[match1.rbegin()->second].DebugShow();
-
-  star_graph.DebugShow(string("From"));
-
-
 #endif
   viewer->addView(master_view.GetView());
   viewer->addView(sensor_view.GetView());

@@ -22,7 +22,7 @@ StarTable *StarTable::instance() {
     pugi::xml_parse_result parse_result = xml_document.load_file("star_table.xml");
 
     if (!parse_result) {
-      cout << "Can NOT parse xml file." << endl;
+      LOG_WARNING << "Can NOT parse xml file.";
     }
     int count = 0;
     for (const auto &item : xml_document.child("star_table").children("item")) {
@@ -32,10 +32,10 @@ StarTable *StarTable::instance() {
       a = item.child("a").text().as_double();
       b = item.child("b").text().as_double();
       l = item.child("l").text().as_double();
-      star_table->star_table_[id] = StarTablePos{id, a, b, l};
+      star_table->star_table_[id] = StarTableData{id, a, b, l};
       ++count;
     }
-    cout << "Got " << count << " stars.";
+    LOG_INFO << "Got " << count << " stars.";
   }
   return star_table;
 }
@@ -50,9 +50,9 @@ StarTable *StarTable::instance() {
 //      i = 0;
 //    }
 //    SkySpherePosGroupWithSpecialCenter sos_group(max_r);
-//    auto *lightness_planet_map = new multimap<double, SkySpherePos>;
+//    auto *lightness_planet_map = new multimap<double, StarSkySpherePos>;
 //    for (const auto &star1: star_table_) {
-//      SkySpherePos sos;
+//      StarSkySpherePos sos;
 //      Convert(star.second, star1.second, sos);
 //      if (sos.pos.length() < max_r) {
 //        lightness_planet_map->insert(make_pair(star1.second.l, sos));

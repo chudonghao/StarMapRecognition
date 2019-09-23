@@ -16,3 +16,8 @@ void SpecialCenterStarOnSkySphereGroup::Add(const std::string &name, StarOnSkySp
   //LOG_TRACE << "ad: " << ad;
   stars_[name] = AngularDistanceStar(ad, star);
 }
+void SpecialCenterStarOnSkySphereGroup::Clear() {
+  stars_.clear();
+  special_center_ = StarOnSkySphere();
+  valid_region_radio_ = 0.;
+}

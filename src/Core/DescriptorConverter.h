@@ -82,7 +82,7 @@ operator()(
       if (convert_circular_) {
         // 环向
         // 0->360度分布到0->circular_special_size
-        SkySpherePos pos;
+        StarSkySpherePos pos;
         // TODO 求解正确参数
         Convert(from.GetSpecialCenter().GetSkySpherePos(), star_struct.second.star.GetSkySpherePos(), pos);
         //LOG_TRACE << pos.GetLongitude() << " : " << pos.GetLatitude();
@@ -175,7 +175,7 @@ bool DescriptorConverter<SpecialCenterStarOnSkySphereGroup,
   }
   //auto max_r = from.GetValidRegionRadio();
   for (auto &star: from.GetStaresOnSkyShphere()) {
-    SkySpherePos pos_;
+    StarSkySpherePos pos_;
     Convert(from.GetSpecialCenter().GetSkySpherePos(), star.second.star.GetSkySpherePos(), pos_);
     osg::Vec3d pos = osg::Vec3d(pos_, 0.);
     pos = pos*rotate;

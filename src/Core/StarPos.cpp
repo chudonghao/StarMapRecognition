@@ -15,7 +15,7 @@ void Convert(double pixel_f,
              const StarGraphPos &graph_center,
              const StarGraphPos &special_center,
              const StarGraphPos &from,
-             SkySpherePos &to) {
+             StarSkySpherePos &to) {
   Vec3d eye = Vec3d(graph_center.GetPixelX(), graph_center.GetPixelY(), pixel_f);
   Vec3d from_Q1 = Vec3d(from.GetPixelX(), special_center.GetPixelY(), 0.);
   Vec3d from_Q2 = Vec3d(special_center.GetPixelX(), from.GetPixelY(), 0.);
@@ -34,7 +34,7 @@ void Convert(double pixel_f,
   //LOG_TRACE << to.GetLongitude() << ":" << to.GetLatitude();
 }
 
-void Convert(const SkySpherePos &special_center, const SkySpherePos &from, SkySpherePos &to) {
+void Convert(const StarSkySpherePos &special_center, const StarSkySpherePos &from, StarSkySpherePos &to) {
   // TODO 更好的计算方式
   //// 经度
   //auto rotate_a = Matrix::rotate(DegreesToRadians(special_center.GetLongitude()), Vec3d(0., 0., 1.));
@@ -87,7 +87,7 @@ void Convert(const SkySpherePos &special_center, const SkySpherePos &from, SkySp
   //LOG_TRACE << to.GetLongitude() << ":" << to.GetLatitude();
 }
 
-double SkySpherePos::AngularDistance(const SkySpherePos &pos2) {
+double StarSkySpherePos::AngularDistance(const StarSkySpherePos &pos2) {
   double a1, b1, a2, b2;
   a1 = DegreesToRadians(GetLongitude());//a1
   b1 = DegreesToRadians(GetLatitude());//b1

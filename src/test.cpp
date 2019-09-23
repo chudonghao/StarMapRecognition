@@ -46,9 +46,9 @@ int main(int argc, char *argv[]) {
   //star_graph.InitFrom("xingtu06.xml", 512., 12.);
   //star_graph.InitFrom("xingtu07.xml", 1024., 20.);
   //star_graph.InitFrom("xingtu08.xml", 1024., 20.);
-  star_graph.DebugShowToSkySpherePos("xingtu05.xml");
-  star_graph.DebugInitFromStarTable(SkySpherePos(90., 0.), 512, 12);
-  star_graph.DebugShowToSkySpherePos("90. 0.");
+  star_graph.DebugShow_ToSkySpherePos("xingtu05.xml");
+  star_graph.DebugInitFromStarTable(StarSkySpherePos(90., 0.), 512, 12);
+  star_graph.DebugShow_ToSkySpherePos("90. 0.");
   star_graph.DebugShow("90. 0.");
   //star_group->addChild(star_graph.DebugShow());
 

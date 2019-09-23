@@ -10,7 +10,7 @@ using namespace osg;
 double StarOnSkySphere::AngularDistance(const StarOnSkySphere &star) {
   return sky_sphere_pos_.AngularDistance(star.GetSkySpherePos());
 }
-StarOnSkySphere::StarOnSkySphere(StarTablePos pos) {
+StarOnSkySphere::StarOnSkySphere(StarTableData pos) {
   SetName(pos.id);
-  SetSkySpherePos(SkySpherePos(pos));
+  SetSkySpherePos(StarSkySpherePos(pos));
 }

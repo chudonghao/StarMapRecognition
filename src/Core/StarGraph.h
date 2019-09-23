@@ -22,24 +22,24 @@
 //  void Clear();
 //  void swap(SkySpherePosGroupWithSpecialCenter &group);
 //  void SetRegionRadio1(double region_radio);
-//  void Add(SkySpherePos star_on_sky_sphere);
+//  void Add(StarSkySpherePos star_on_sky_sphere);
 //  double GetRegionRadio() const;
 //  double GetMoreAppropriateRegionRadio() const;
 //  int size() const { return stars_.size(); }
 //  void SetSpecialCenterName(const string &special_center_name);
-//  const vector<SkySpherePos> &GetStars() const;
+//  const vector<StarSkySpherePos> &GetStars() const;
 // private:
 //  std::string special_center_name_;
-//  std::vector<SkySpherePos> stars_;
+//  std::vector<StarSkySpherePos> stars_;
 //  double region_radio_;
 //
 //  void RemoveInvalidStars();
 //  int GetAppropriateSize() const;
 //};
 //
-//void Convert(const StarTablePos &special_center,
-//             const StarTablePos &from,
-//             SkySpherePos &to);
+//void Convert(const StarTableData &special_center,
+//             const StarTableData &from,
+//             StarSkySpherePos &to);
 //
 //void CreateStarOnSkySphereGroupWithSpecialCenter(const std::vector<StarGraphPos> &stars_on_graph,
 //                                                 double pixel_f,
@@ -47,8 +47,8 @@
 //                                                 const StarGraphPos &special_center,
 //                                                 SkySpherePosGroupWithSpecialCenter &res);
 //
-//void CreateStarOnSkySphereGroupWithSpecialCenter(const std::vector<StarTablePos> &stars,
-//                                                 const StarTablePos &special_center,
+//void CreateStarOnSkySphereGroupWithSpecialCenter(const std::vector<StarTableData> &stars,
+//                                                 const StarTableData &special_center,
 //                                                 double max_r,
 //                                                 int planet_num,
 //                                                 SkySpherePosGroupWithSpecialCenter &res);
@@ -59,12 +59,13 @@ class StarGraph {
  public:
   StarGraph();
   bool InitFrom(const std::string &file_name, double graph_size, double graph_a);
-  bool DebugInitFromStarTable(SkySpherePos pos, double graph_size, double graph_a);
+  bool DebugInitFromStarTable(StarSkySpherePos pos, double graph_size, double graph_a);
   void DebugShow(string debug_name);
-  void DebugShowToSkySpherePos(string debug_name);
+  void DebugShow_ToSkySpherePos(string debug_name);
   //Descriptor GetDescriptor();
 
   SpecialCenterStarOnSkySphereGroup GetMasterGroup();
+  SpecialCenterStarOnSkySphereGroup GetStarGroupRelativeToViewCenter();
 
   template<int s1, int s2>
   std::map<std::string, Descriptor2<s1, s2>> *GetDescriptor2s() {
@@ -82,12 +83,16 @@ class StarGraph {
     }
     return res;
   }
-
  private:
 
   std::map<std::string, StarOnGraph__> stars_;
+  SpecialCenterStarOnSkySphereGroup star_group_relative_to_view_center_;
   int graph_size_{};
   float graph_fovy_{};
+  float pixel_f_;
+  void Reset(double graph_size, double graph_a);
+  void ResetStarOnSkySphereGroupRelativeToViewCenter();
+  void ResetPerStarGroup();
 };
 
 #endif //STARMAPRECOGNITION__STARGRAPH_H_

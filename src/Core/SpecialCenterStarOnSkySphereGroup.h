@@ -28,6 +28,7 @@ class SpecialCenterStarOnSkySphereGroup {
   }
   void SetSpecialCenter(const StarOnSkySphere &special_center) {
     special_center_ = special_center;
+    CalculateAngularDistance();
     Shirk();
   }
   float GetValidRegionRadio() const {
@@ -40,7 +41,6 @@ class SpecialCenterStarOnSkySphereGroup {
   void Shirk() {
     auto last_iter = stars_.begin();
     for (auto iter = last_iter; iter != stars_.end(); ++iter) {
-
       if (iter->second.angular_distance >= valid_region_radio_ || special_center_.GetName() == iter->first) {
         if (iter == stars_.begin()) {
           stars_.erase(iter);
@@ -59,7 +59,13 @@ class SpecialCenterStarOnSkySphereGroup {
       }
     }
   }
+  void CalculateAngularDistance(){
+    for (auto iter = stars_.begin(); iter != stars_.end(); ++iter) {
+      iter->second.angular_distance = iter->second.star.AngularDistance(special_center_);
+    }
+  }
   int Size() const { return stars_.size(); }
+  void Clear();
  private:
   float valid_region_radio_{};
   StarOnSkySphere special_center_;

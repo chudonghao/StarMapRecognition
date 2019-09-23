@@ -16,14 +16,14 @@
 class StarTable {
  public:
   static StarTable *instance();
-  std::map<std::string, StarTablePos> &Table() { return star_table_; }
+  std::map<std::string, StarTableData> &Table() { return star_table_; }
   //std::map<string, Descriptor> CreateDescriptorDatabase(double max_r, int planet_num);
   template<int radial_special_size, int circular_special_size>
   std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *CreateDescriptorDatabase();
   template<int special_size>
   std::map<std::string, Descriptor3<special_size>> *CreateDescriptor3Database(float region_radio, int star_num);
  private:
-  std::map<std::string, StarTablePos> star_table_;
+  std::map<std::string, StarTableData> star_table_;
 };
 
 template<int radial_special_size, int circular_special_size>
@@ -42,7 +42,7 @@ std::map<std::string, Descriptor2<radial_special_size, circular_special_size>> *
     // TODO 最大值
     scsg.SetValidRegionRadio(10.);
     for (const auto &star1: star_table_) {
-      double angular_distance = SkySpherePos(name_star_pair.second).AngularDistance(SkySpherePos(star1.second));
+      double angular_distance = StarSkySpherePos(name_star_pair.second).AngularDistance(StarSkySpherePos(star1.second));
       if (angular_distance < 10.)
         angular_distance_star_map->insert(make_pair(star1.second.l, StarOnSkySphere(star1.second)));
     }
@@ -87,7 +87,7 @@ std::map<std::string, Descriptor3<special_size>> *StarTable::CreateDescriptor3Da
     // TODO 最大值
     scsg.SetValidRegionRadio(region_radio);
     for (const auto &star1: star_table_) {
-      double angular_distance = SkySpherePos(name_star_pair.second).AngularDistance(SkySpherePos(star1.second));
+      double angular_distance = StarSkySpherePos(name_star_pair.second).AngularDistance(StarSkySpherePos(star1.second));
       if (angular_distance < region_radio)
         brightness_star_map->insert(make_pair(star1.second.l, StarOnSkySphere(star1.second)));
     }
