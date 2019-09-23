@@ -14,5 +14,5 @@ void SpecialCenterStarOnSkySphereGroup::Add(const std::string &name, StarOnSkySp
   }
   float ad = star.AngularDistance(special_center_);
   //LOG_TRACE << "ad: " << ad;
-  stars_[name] = {ad, star};
+  stars_[name] = AngularDistanceStar(ad, star);
 }

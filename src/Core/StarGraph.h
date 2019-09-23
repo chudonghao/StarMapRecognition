@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <osg/Group>
 #include "Descriptor.h"
 #include "StarPos.h"
 #include "StarOnGraph.h"
@@ -58,6 +59,9 @@ class StarGraph {
  public:
   StarGraph();
   bool InitFrom(const std::string &file_name, double graph_size, double graph_a);
+  bool DebugInitFromStarTable(SkySpherePos pos, double graph_size, double graph_a);
+  void DebugShow(string debug_name);
+  void DebugShowToSkySpherePos(string debug_name);
   //Descriptor GetDescriptor();
 
   SpecialCenterStarOnSkySphereGroup GetMasterGroup();
@@ -78,27 +82,12 @@ class StarGraph {
     }
     return res;
   }
-  template<int s1>
-  std::map<std::string, Descriptor3<s1>> *GetDescriptor3() {
-    // TODO
-    Descriptor3<s1> res;
-    for (auto &name_star_pair:stars_) {
-      DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<s1>> converter;
-      Descriptor3<s1> *r = new Descriptor3<s1>;
-      if (converter(name_star_pair.second.GetSpecialStarGroup(), *r)) {
-        if (r->GetStarNum() > 0) {
-          res->emplace(name_star_pair.first, *r);
-        }
-      }
-      delete r;
-    }
-    return res;
-  }
+
  private:
 
   std::map<std::string, StarOnGraph__> stars_;
   int graph_size_{};
-  float graph_a_{};
+  float graph_fovy_{};
 };
 
 #endif //STARMAPRECOGNITION__STARGRAPH_H_

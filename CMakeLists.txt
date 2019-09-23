@@ -80,7 +80,9 @@ endif ()
 add_definitions(${EIGEN3_DEFINITIONS})
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
-find_package(OpenCV REQUIRED COMPONENTS core)
+################################################################################
+# OpenCV
+find_package(OpenCV REQUIRED)
 message(STATUS "OpenCV_LIBS:${OpenCV_LIBS}")
 message(STATUS "OpenCV_INCLUDE_DIRS:${OpenCV_INCLUDE_DIRS}")
 include_directories(${OpenCV_INCLUDE_DIRS})

@@ -14,11 +14,16 @@
 #include <osg/Matrix>
 #include <opencv/cv.h>
 #include <osg/Vec2d>
+#include <osg/Geode>
 #include <iomanip>
+#include <osg/ShapeDrawable>
+#include <osg/MatrixTransform>
+#include <cv.hpp>
 
 #include "../Util/CommonFunc.h"
 #include "../log.h"
 #include "DescriptorConverter.h"
+#include "StarTable.h"
 
 using namespace std;
 using namespace osg;
@@ -53,8 +58,8 @@ using namespace osg;
 bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double graph_a) {
   stars_.clear();
   graph_size_ = graph_size;
-  graph_a_ = graph_a;
-  double pixel_f = (graph_size / 2.) / tan(DegreesToRadians(graph_a) / 2.);
+  graph_fovy_ = graph_a;
+  double pixel_f = (graph_size/2.)/tan(DegreesToRadians(graph_a)/2.);
   pugi::xml_document xml_document;
   pugi::xml_parse_result result = xml_document.load_file(file_name.c_str());
   if (!result) {
@@ -90,21 +95,20 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
   // 以视点中心为0，0，将星星映射到SkySphere坐标
   std::map<string, StarOnSkySphere> stars_on_sky_sphere;
   for (auto &name_star_pair: stars_) {
-    StarOnSkySphere star_on_sky_sphere =
-        name_star_pair.second.ToStarOnSkySphere(StarGraphPos(graph_size_ / 2., graph_size_ / 2.), pixel_f, graph_size_);
-    stars_on_sky_sphere[name_star_pair.first] = star_on_sky_sphere;
-    //LOG_TRACE << star_on_sky_sphere.GetName();
-    //LOG_TRACE << star_on_sky_sphere.GetSkySpherePos().x();
-    //LOG_TRACE << star_on_sky_sphere.GetSkySpherePos().y();
+    const auto &name = name_star_pair.first;
+    const auto &star_on_graph = name_star_pair.second;
+    StarOnSkySphere star_on_sky_sphere = star_on_graph.ToStarOnSkySphere(StarGraphPos(graph_size_/2., graph_size_/2.), pixel_f, graph_size_);
+    stars_on_sky_sphere[name] = star_on_sky_sphere;
   }
 
+  // 设置每个星星相关的星组
   for (auto &name_star_pair: stars_) {
-    auto &current_star_name = name_star_pair.first;
-    auto &current_star = name_star_pair.second;
+    auto &name = name_star_pair.first;
+    auto &star_on_graph = name_star_pair.second;
     SpecialCenterStarOnSkySphereGroup scsg;
     // 计算有效半径
-    const StarGraphPos &special_center = current_star.GetStarGraphPos();
-    StarGraphPos graph_center = StarGraphPos(graph_size_ / 2., graph_size_ / 2.);
+    const StarGraphPos &special_center = star_on_graph.GetStarGraphPos();
+    StarGraphPos graph_center = StarGraphPos(graph_size_/2., graph_size_/2.);
     StarGraphPos special_center_left_bottom(special_center.GetPixelX(), special_center.GetPixelY());
     if (special_center.GetPixelX() > graph_center.GetPixelX()) {
       special_center_left_bottom.SetPixelX(graph_size_ - special_center.GetPixelX());
@@ -115,17 +119,17 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
     SkySpherePos sky_sphere_pos;
     Convert(pixel_f, graph_center, special_center_left_bottom, StarGraphPos(0., 0.), sky_sphere_pos);
     // 设置有效半径
-    scsg.SetValidRegionRadio(min(-sky_sphere_pos.GetLongitude(), -sky_sphere_pos.GetLatitude()));
+    scsg.SetValidRegionRadio(min(sky_sphere_pos.GetLongitude(), -sky_sphere_pos.GetLatitude()));
     // 设置中心星为当前星星
-    scsg.SetSpecialCenter(stars_on_sky_sphere[current_star_name]);
-    //LOG_TRACE << "special center: "<<stars_on_sky_sphere[current_star_name].GetName();
-    //LOG_TRACE << "special center lon: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLongitude();
-    //LOG_TRACE << "special center lat: "<<stars_on_sky_sphere[current_star_name].GetSkySpherePos().GetLatitude();
+    scsg.SetSpecialCenter(stars_on_sky_sphere[name]);
+    //LOG_TRACE << "special center: "<<stars_on_sky_sphere[name].GetName();
+    //LOG_TRACE << "special center lon: "<<stars_on_sky_sphere[name].GetSkySpherePos().GetLongitude();
+    //LOG_TRACE << "special center lat: "<<stars_on_sky_sphere[name].GetSkySpherePos().GetLatitude();
     //LOG_TRACE << "valid region radio: " << scsg.GetValidRegionRadio();
     for (auto &star_on_sky_sphere_pair : stars_on_sky_sphere) {
       scsg.Add(star_on_sky_sphere_pair.first, star_on_sky_sphere_pair.second);
     }
-    current_star.SetSpecialStarGroup(scsg);
+    star_on_graph.SetSpecialStarGroup(scsg);
     //SkySpherePosGroupWithSpecialCenter sos_group;
     //LOG_TRACE << "=============================";
     //for (auto &star : sos_group.stars) {
@@ -148,6 +152,68 @@ bool StarGraph::InitFrom(const std::string &file_name, double graph_size, double
   return true;
 }
 
+bool StarGraph::DebugInitFromStarTable(SkySpherePos pos, double graph_size, double graph_a) {
+  stars_.clear();
+  graph_size_ = graph_size;
+  graph_fovy_ = graph_a;
+  double pixel_f = (graph_size/2.)/tan(DegreesToRadians(graph_a)/2.);
+  auto &tab = StarTable::instance()->Table();
+  Vec3 center = pos.WorldPosition(1.);
+  int id = 0;
+  for (auto &item:tab) {
+    //SkySpherePos new_pos;
+    //Convert(pos,SkySpherePos(item.second),new_pos);
+    StarTablePos &star_table_pos = item.second;
+    Vec3d screen_pos = SkySpherePos(star_table_pos).
+        ScreenPosition(graph_size, Matrix::lookAt(Vec3(), center, Vec3(0.f, 0.f, 1.f)), Matrix::perspective(graph_a, 1., 0.5, 1.));
+    if (screen_pos.x() >= 0. && screen_pos.y() >= 0. && screen_pos.x() < graph_size && screen_pos.y() < graph_size && screen_pos.z() <= 1.) {
+      string name = string("debug") + to_string(id);
+      stars_[name] = StarOnGraph__(name, StarGraphPos(screen_pos.x(), screen_pos.y()));
+      ++id;
+      //LOG_DEBUG << screen_pos.x() << "\t" << screen_pos.y() << "\t" << star_table_pos.a << "\t" << star_table_pos.b << "\t" << screen_pos.z();
+    }
+  }
+
+  // 以视点中心为0，0，将星星映射到SkySphere坐标
+  std::map<string, StarOnSkySphere> stars_on_sky_sphere;
+  for (auto &name_star_pair: stars_) {
+    StarOnSkySphere star_on_sky_sphere =
+        name_star_pair.second.ToStarOnSkySphere(StarGraphPos(graph_size_/2., graph_size_/2.), pixel_f, graph_size_);
+    stars_on_sky_sphere[name_star_pair.first] = star_on_sky_sphere;
+    //LOG_TRACE << star_on_sky_sphere.GetName();
+    //LOG_TRACE << star_on_sky_sphere.GetSkySpherePos().x();
+    //LOG_TRACE << star_on_sky_sphere.GetSkySpherePos().y();
+  }
+
+  for (auto &name_star_pair: stars_) {
+    auto &current_star_name = name_star_pair.first;
+    auto &current_star = name_star_pair.second;
+    SpecialCenterStarOnSkySphereGroup scsg;
+    // 计算有效半径
+    const StarGraphPos &special_center = current_star.GetStarGraphPos();
+    StarGraphPos graph_center = StarGraphPos(graph_size_/2., graph_size_/2.);
+    StarGraphPos special_center_left_bottom(special_center.GetPixelX(), special_center.GetPixelY());
+    if (special_center.GetPixelX() > graph_center.GetPixelX()) {
+      special_center_left_bottom.SetPixelX(graph_size_ - special_center.GetPixelX());
+    }
+    if (special_center.GetPixelY() > graph_center.GetPixelY()) {
+      special_center_left_bottom.SetPixelY(graph_size_ - special_center.GetPixelY());
+    }
+    SkySpherePos sky_sphere_pos;
+    Convert(pixel_f, graph_center, special_center_left_bottom, StarGraphPos(0., 0.), sky_sphere_pos);
+    // 设置有效半径
+    scsg.SetValidRegionRadio(min(sky_sphere_pos.GetLongitude(), -sky_sphere_pos.GetLatitude()));
+    // 设置中心星为当前星星
+    scsg.SetSpecialCenter(stars_on_sky_sphere[current_star_name]);
+    for (auto &star_on_sky_sphere_pair : stars_on_sky_sphere) {
+      scsg.Add(star_on_sky_sphere_pair.first, star_on_sky_sphere_pair.second);
+    }
+    current_star.SetSpecialStarGroup(scsg);
+
+  }
+  return true;
+}
+
 StarGraph::StarGraph() {}
 SpecialCenterStarOnSkySphereGroup StarGraph::GetMasterGroup() {
   int max = 0;
@@ -156,16 +222,8 @@ SpecialCenterStarOnSkySphereGroup StarGraph::GetMasterGroup() {
     auto &from = pair.second.GetSpecialStarGroup();
     auto &stars = from.GetStaresOnSkyShphere();
     int star_count = 0;
-    for (auto &star_struct:stars) {
-      if (from.GetSpecialCenter().GetName() == star_struct.second.star.GetName()) {
-        continue;
-      }
-      if (star_struct.second.angular_distance < pair.second.GetSpecialStarGroup().GetValidRegionRadio()) {
-        ++star_count;
-      } else {
-        //LOG_TRACE << star_struct.second.angular_distance;
-      }
-    }
+    from.Shirk();
+    star_count = from.Size();
     if (star_count > max) {
       max = star_count;
       max_name = pair.first;
@@ -175,6 +233,67 @@ SpecialCenterStarOnSkySphereGroup StarGraph::GetMasterGroup() {
     return stars_[max_name].GetSpecialStarGroup();
   }
   return SpecialCenterStarOnSkySphereGroup();
+}
+void StarGraph::DebugShow(string debug_name) {
+  using namespace cv;
+  const static int kSize = 500;
+  static int i = 0;
+
+  Mat m(kSize, kSize, CV_32FC1, Scalar(0.));
+  for (auto &star_pair:stars_) {
+    const string &name = star_pair.first;
+    StarOnGraph__ &star_on_graph = star_pair.second;
+    m.at<float>(
+        static_cast<int>(star_on_graph.GetStarGraphPos().GetPixelY()/graph_size_*kSize),
+        static_cast<int>(star_on_graph.GetStarGraphPos().GetPixelX()/graph_size_*kSize)
+    ) = 1.;
+  }
+  cv::flip(m, m, 0);
+  imshow(debug_name + string(":StarGraph DebugShow:") + to_string(i), m);
+  ++i;
+}
+void StarGraph::DebugShowToSkySpherePos(string debug_name) {
+  using namespace cv;
+  const static int kSize = 200;
+  const static float kMaxAngularDistance = 6.f;
+  static int i = 0;
+
+  Mat m(kSize, kSize, CV_32FC1, Scalar(0.));
+
+  for (auto &star_pair:stars_) {
+    const string &name = star_pair.first;
+    StarOnGraph__ &star_on_graph = star_pair.second;
+    StarOnSkySphere star_on_sky_sphere = star_on_graph.
+        ToStarOnSkySphere(StarGraphPos(graph_size_/2, graph_size_/2), graph_size_/2./tan(DegreesToRadians(graph_fovy_)/2.), graph_size_);
+
+    float ad = star_on_sky_sphere.AngularDistance(StarOnSkySphere("", SkySpherePos()));
+    if (ad < kMaxAngularDistance) {
+      m.at<float>(
+          static_cast<int>(star_on_sky_sphere.GetSkySpherePos().GetLatitude()/kMaxAngularDistance*kSize/2. + kSize/2.),
+          static_cast<int>(star_on_sky_sphere.GetSkySpherePos().GetLongitude()/kMaxAngularDistance*kSize/2. + kSize/2.)
+      ) = 1.;
+    } else {
+      LOG_WARNING << ad;
+    }
+  }
+  cv::flip(m, m, 0);
+  imshow(debug_name + string(":StarGraph DebugShowToSkySpherePos To:") + to_string(i), m);
+
+  m = Mat(m.size(), m.type(), Scalar());
+  for (auto &star_pair:stars_) {
+    const string &name = star_pair.first;
+    StarOnGraph__ &star_on_graph = star_pair.second;
+    if (star_on_graph.GetStarGraphPos().GetPixelX() < graph_size_ && star_on_graph.GetStarGraphPos().GetPixelY() < graph_size_) {
+      m.at<float>(
+          static_cast<int>(star_on_graph.GetStarGraphPos().GetPixelY()/graph_size_*kSize),
+          static_cast<int>(star_on_graph.GetStarGraphPos().GetPixelX()/graph_size_*kSize)
+      ) = 1.;
+    }
+    LOG_DEBUG << star_on_graph.GetStarGraphPos().GetPixelX() << ":" << star_on_graph.GetStarGraphPos().GetPixelY();
+  }
+  cv::flip(m, m, 0);
+  imshow(debug_name + string(":StarGraph DebugShowToSkySpherePos From:") + to_string(i), m);
+  ++i;
 }
 
 //void CreateStarOnSkySphereGroupWithSpecialCenter(const std::vector<StarTablePos> &stars,

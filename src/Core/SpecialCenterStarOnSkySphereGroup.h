@@ -12,8 +12,11 @@ class SpecialCenterStarOnSkySphereGroup {
  public:
   SpecialCenterStarOnSkySphereGroup() : special_center_() {}
   explicit SpecialCenterStarOnSkySphereGroup(const StarOnSkySphere &special_center) : special_center_(special_center) {}
-  struct AngularDistanceStar {
-    float angular_distance;
+  class AngularDistanceStar {
+   public:
+    AngularDistanceStar() {}
+    AngularDistanceStar(float angular_distance, const StarOnSkySphere &star) : angular_distance(angular_distance), star(star) {}
+    float angular_distance{};
     StarOnSkySphere star;
   };
   const std::map<std::string, AngularDistanceStar> &GetStaresOnSkyShphere() const {
@@ -25,6 +28,7 @@ class SpecialCenterStarOnSkySphereGroup {
   }
   void SetSpecialCenter(const StarOnSkySphere &special_center) {
     special_center_ = special_center;
+    Shirk();
   }
   float GetValidRegionRadio() const {
     return valid_region_radio_;
@@ -36,9 +40,14 @@ class SpecialCenterStarOnSkySphereGroup {
   void Shirk() {
     auto last_iter = stars_.begin();
     for (auto iter = last_iter; iter != stars_.end(); ++iter) {
+
       if (iter->second.angular_distance >= valid_region_radio_ || special_center_.GetName() == iter->first) {
         if (iter == stars_.begin()) {
           stars_.erase(iter);
+          // TODO ?
+          if (stars_.empty()) {
+            break;
+          }
           iter = stars_.begin();
           last_iter = iter;
         } else {

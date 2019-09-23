@@ -16,6 +16,7 @@ class StarOnGraph__ {
   explicit StarOnGraph__(const StarGraphPos &star_graph_pos) : star_graph_pos_(star_graph_pos) {}
   explicit StarOnGraph__(const std::string &name) : name_(name) {}
   StarOnGraph__(const std::string &name, const StarGraphPos &star_graph_pos) : name_(name), star_graph_pos_(star_graph_pos) {}
+  explicit StarOnGraph__(StarTablePos pos);
   const std::string &GetName() const {
     return name_;
   }
@@ -46,7 +47,7 @@ class StarOnGraph__ {
   bool operator!=(const StarOnGraph__ &rhs) const {
     return !(rhs == *this);
   }
-  StarOnSkySphere ToStarOnSkySphere(const StarGraphPos &center_star_graph_pos, double pixel_f, double graph_size);
+  StarOnSkySphere ToStarOnSkySphere(const StarGraphPos &center_star_graph_pos, double pixel_f, double graph_size) const;
  private:
   std::string name_;
   StarGraphPos star_graph_pos_;

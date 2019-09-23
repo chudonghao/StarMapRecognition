@@ -18,3 +18,19 @@ target_link_libraries(main
         ${PROJECT_NAME}_Util
         ${PROJECT_NAME}_Scene
         )
+
+add_executable(test
+        test.cpp
+        log.cpp
+        log.h)
+
+target_link_libraries(test
+        ${OSG_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${PUGIXML_LIBRARY}
+        ${CERES_LIBRARIES}
+        ${OpenCV_LIBS}
+        ${PROJECT_NAME}_Core
+        ${PROJECT_NAME}_Util
+        ${PROJECT_NAME}_Scene
+        )

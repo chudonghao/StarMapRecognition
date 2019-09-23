@@ -9,16 +9,18 @@
 
 class StarOnSkySphere {
  public:
-  StarOnSkySphere() : sky_sphere_pos_(), name_() {}
+  StarOnSkySphere() : sky_sphere_pos_(), name_("") {}
   explicit StarOnSkySphere(StarTablePos pos);
   StarOnSkySphere(const std::string &name, const SkySpherePos &sky_sphere_pos) : name_(name), sky_sphere_pos_(sky_sphere_pos) {}
+  StarOnSkySphere(const StarOnSkySphere &from) : name_(from.name_), sky_sphere_pos_(from.sky_sphere_pos_) {}
+
   const SkySpherePos &GetSkySpherePos() const {
     return sky_sphere_pos_;
   }
   void SetSkySpherePos(const SkySpherePos &sky_sphere_pos) {
     sky_sphere_pos_ = sky_sphere_pos;
   }
-  const std::string &GetName() const {
+  std::string GetName() const {
     return name_;
   }
   void SetName(const std::string &name) {

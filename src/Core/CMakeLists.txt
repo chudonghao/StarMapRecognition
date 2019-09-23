@@ -29,4 +29,4 @@ add_library(${MODEL_NAME} STATIC
         Descriptor3.cpp
         Descriptor3.h)
 
-target_link_libraries(${MODEL_NAME} ${PUGIXML_LIBRARY} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+target_link_libraries(${MODEL_NAME} ${PUGIXML_LIBRARY} ${OpenCV_LIBS} ${CERES_LIBRARIES} ${OpenCV_LIBS})

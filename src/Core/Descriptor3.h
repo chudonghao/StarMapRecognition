@@ -5,7 +5,13 @@
 #ifndef STARMAPRECOGNITION_SRC_CORE_DESCRIPTOR3_H_
 #define STARMAPRECOGNITION_SRC_CORE_DESCRIPTOR3_H_
 
+#include <sstream>
+#include <iomanip>
+#include <cv.hpp>
+#include <cmath>
 #include "SpecialCenterStarOnSkySphereGroup.h"
+#include "../log.h"
+#include "../Util/CommonFunc.h"
 
 template<int size>
 class Descriptor3 {
@@ -21,7 +27,7 @@ class Descriptor3 {
     float res = 0.f;
     for (int i = 0; i < size; ++i) {
       for (int j = 0; j < size; ++j) {
-        res += special_[i][j] * des.special_[i][j];
+        res += special_[i][j]*des.special_[i][j];
       }
     }
     return res;
@@ -41,6 +47,48 @@ class Descriptor3 {
   }
   void SetSpecialDir(const osg::Vec2d &special_dir) {
     special_dir_ = special_dir;
+  }
+  void DebugPrint() {
+    std::stringstream ss;
+    ss << "\n";
+    for (int i = 0; i < size; ++i) {
+      for (int j = 0; j < size; ++j) {
+        ss << std::setw(4) << special_[i][j];
+      }
+      ss << "\n";
+    }
+    LOG_DEBUG << ss.str();
+  }
+  void DebugShow() {
+    using namespace cv;
+    using namespace std;
+    Mat m(size, size, CV_32FC3, Scalar(0., 0., 0.));
+    for (int i = 0; i < size; ++i) {
+      for (int j = 0; j < size; ++j) {
+        m.at<Vec3f>(j, i)[0] = special_[i][j];
+        m.at<Vec3f>(j, i)[1] = special_[i][j];
+        m.at<Vec3f>(j, i)[2] = special_[i][j];
+        //m.at<Vec3f>(j, i)[0] = 255.;
+        //m.at<Vec3f>(j, i)[1] = 255.;
+        //m.at<Vec3f>(j, i)[2] = 255.;
+      }
+    }
+    LOG_DEBUG << special_dir_.x() << special_dir_.y();
+    double rad = Radians(special_dir_, osg::Vec2d(1., 0.));
+    if (special_dir_.y() < 0.) {
+      rad = 2.*M_PI - rad;
+    }
+    Mat rotate = getRotationMatrix2D(Point2f(size/2, size/2), osg::RadiansToDegrees(rad), 1.);
+    warpAffine(m.clone(), m, rotate, Size(size, size));
+    line(m, Point((special_dir_.x() + 1.)*m.rows/2., (special_dir_.y() + 1.)*m.cols/2.), Point(size/2, size/2), Scalar(0., 1., 1.), 1);
+    flip(m, m, 0);
+    //flip(m, m, 1);
+    while (m.rows < 400)
+      pyrUp(m, m);
+    LOG_DEBUG << Point((special_dir_.y() + 1.)*m.rows/2., (special_dir_.x() + 1.)*m.cols/2.);
+    static int i = 0;
+    imshow(string("Descriptor3") + to_string(i), m);
+    ++i;
   }
  private:
   osg::Vec2d special_dir_;

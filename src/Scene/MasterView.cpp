@@ -5,6 +5,7 @@
 #include "MasterView.h"
 #include <osg/MatrixTransform>
 #include <iostream>
+#include <osgGA/TrackballManipulator>
 #include "MasterCameraManipulator.h"
 #include "Shape.h"
 #include "Planet.h"
@@ -88,6 +89,7 @@ void MasterView::InitCameraManipulator() {
     }
   });
   view_->setCameraManipulator(camera_manipulator_);
+  //view_->setCameraManipulator(new osgGA::TrackballManipulator);
 }
 void MasterView::InitHintTextNode() {
   hint_text_mt_ = new MatrixTransform;

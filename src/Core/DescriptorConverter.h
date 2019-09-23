@@ -77,7 +77,7 @@ operator()(
     if (star_struct.second.angular_distance < r) {
       // 径向
       // 0->10度分布到0->31
-      des.GetRadialSpecial()[static_cast<int>(star_struct.second.angular_distance / 10.f * radial_special_size)] = 1.f;
+      des.GetRadialSpecial()[static_cast<int>(star_struct.second.angular_distance/10.f*radial_special_size)] = 1.f;
       ++star_count;
       if (convert_circular_) {
         // 环向
@@ -88,10 +88,10 @@ operator()(
         //LOG_TRACE << pos.GetLongitude() << " : " << pos.GetLatitude();
         auto rad = Radians(Vec2(1.f, 0.f), Vec2(pos));
         if (pos.y() < 0.) {
-          rad = 2. * PI - rad;
+          rad = 2.*PI - rad;
         }
         //LOG_DEBUG << pos.GetLongitude() << ":" << pos.GetLatitude() << ":" << rad;
-        des.GetCircularSpecial()[static_cast<int>(rad / (PI * 2.) * circular_special_size)] = 1.f;
+        des.GetCircularSpecial()[static_cast<int>(rad/(PI*2.)*circular_special_size)] = 1.f;
       }
     } else {
       //LOG_TRACE << star_struct.second.angular_distance;
@@ -125,10 +125,11 @@ bool DescriptorConverter<SpecialCenterStarOnSkySphereGroup,
   float r = from.GetValidRegionRadio();
   for (int i = 0; i < special_size; ++i) {
     for (int j = 0; j < special_size; ++j) {
-      des.GetSpecials()[i * special_size + j] = 0.f;
+      des.GetSpecials()[i*special_size + j] = 0.f;
     }
   }
 
+  // 使用PCA计算方向因子
   auto data_mat = Mat_<double>(2, from.Size() + 1);
   data_mat.at<double>(0, 0) = 0;// center
   data_mat.at<double>(1, 0) = 0;
@@ -152,70 +153,77 @@ bool DescriptorConverter<SpecialCenterStarOnSkySphereGroup,
   //LOG_TRACE << pca.eigenvectors;
   //LOG_TRACE << pca.mean;
   //LOG_TRACE << pca.eigenvalues;
-  osg::Vec3d dir(pca.eigenvectors.at<double>(0), pca.eigenvectors.at<double>(1), 0.);
-  if (tar < 0.) {
-    dir.x() = -dir.x();
-    dir.y() = -dir.y();
-  }
+  osg::Vec2d dir(pca.eigenvectors.at<double>(0), pca.eigenvectors.at<double>(1));
+  dir *= tar;
   dir.normalize();
-  Matrixd rotate = Matrixd::rotate(dir, osg::Vec3d(1., 0., 0.));
+  des.SetSpecialDir(dir);
+
+  //// 使用平均位置计算方向因子
+  //osg::Vec3d dir;
+  //for (const auto &star  : from.GetStaresOnSkyShphere()) {
+  //  dir.x() += star.second.star.GetSkySpherePos().GetLongitude();
+  //  dir.y() += star.second.star.GetSkySpherePos().GetLatitude();
+  //}
+
+  Matrixd rotate = Matrixd::rotate(osg::Vec3d(dir.x(), dir.y(), 0.), osg::Vec3d(1., 0., 0.));
   float *data_ = des.GetSpecials();
   for (int i = 0; i < special_size; ++i) {
     for (int j = 0; j < special_size; ++j) {
-      data_[i * special_size + j] = 0.f;
+      data_[i*special_size + j] = 0.f;
     }
   }
   //auto max_r = from.GetValidRegionRadio();
   for (auto &star: from.GetStaresOnSkyShphere()) {
     SkySpherePos pos_;
     Convert(from.GetSpecialCenter().GetSkySpherePos(), star.second.star.GetSkySpherePos(), pos_);
-    des.SetSpecialDir(pos_);
     osg::Vec3d pos = osg::Vec3d(pos_, 0.);
-    pos = pos * rotate;
-    int i = pos.x() / from.GetValidRegionRadio() * (special_size / 2.) + special_size / 2.;
+    pos = pos*rotate;
+    //int i = pos.x() / from.GetValidRegionRadio() * (special_size / 2.) + special_size / 2.;
+    int i = special_size - (pos.x()/10.*(special_size/2.) + special_size/2.);
     int i1;
-    int j = pos.y() / from.GetValidRegionRadio() * (special_size / 2.) + special_size / 2.;
+    //int j = pos.y() / from.GetValidRegionRadio() * (special_size / 2.) + special_size / 2.;
+    int j = pos.y()/10.*(special_size/2.) + special_size/2.;
     int j1;
-    data_[i * special_size + j] = 1.f;
+    data_[i*special_size + j] += 1.f;
     i1 = i - 1;
     j1 = j - 1;
     if (i1 >= 0 && j1 > 0) {
-      data_[i1 * special_size + j1] += 0.25f;
+      data_[i1*special_size + j1] += 0.05f;
     }
     i1 = i + 1;
     j1 = j - 1;
     if (i1 < special_size && j1 >= 0) {
-      data_[i1 * special_size + j1] += 0.25f;
+      data_[i1*special_size + j1] += 0.05f;
     }
     i1 = i - 1;
     j1 = j + 1;
     if (i1 >= 0 && j1 < special_size) {
-      data_[i1 * special_size + j1] += 0.25f;
+      data_[i1*special_size + j1] += 0.05f;
     }
     i1 = i + 1;
     j1 = j + 1;
     if (i1 < special_size && j1 < special_size) {
-      data_[i1 * special_size + j1] += 0.25f;
+      data_[i1*special_size + j1] += 0.05f;
     }
     i1 = i;
     j1 = j - 1;
     if (j1 >= 0) {
-      data_[i1 * special_size + j1] += 0.5f;
+      data_[i1*special_size + j1] += 0.1f;
     }
     i1 = i;
     j1 = j + 1;
     if (j1 < special_size) {
-      data_[i1 * special_size + j1] += 0.5f;
+      data_[i1*special_size + j1] += 0.1f;
     }
     i1 = i - 1;
     j1 = j;
     if (i1 >= 0) {
-      data_[i1 * special_size + j1] += 0.5f;
+      data_[i1*special_size + j1] += 0.1f;
     }
     i1 = i + 1;
     j1 = j;
     if (i1 < special_size) {
-      data_[i1 * special_size + j1] += 0.5f;
+      data_[i1*special_size + j1] += 0.1f;
     }
   }
   //res.SetDataColumnSize(column_size);
