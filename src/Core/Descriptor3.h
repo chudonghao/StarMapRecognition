@@ -78,7 +78,7 @@ class Descriptor3 {
     if (special_dir_.y() < 0.) {
       rad = 2.*M_PI - rad;
     }
-    Mat rotate = getRotationMatrix2D(Point2f(size/2, size/2), osg::RadiansToDegrees(rad), 1.);
+    Mat rotate = getRotationMatrix2D(Point2f(size/2, size/2), -osg::RadiansToDegrees(rad), 1.);
     warpAffine(m.clone(), m, rotate, Size(size, size));
     line(m, Point((special_dir_.x() + 1.)*m.rows/2., (special_dir_.y() + 1.)*m.cols/2.), Point(size/2, size/2), Scalar(0., 1., 1.), 1);
     //LOG_DEBUG << Point((special_dir_.y() + 1.)*m.rows/2., (special_dir_.x() + 1.)*m.cols/2.);

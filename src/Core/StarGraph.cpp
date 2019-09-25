@@ -141,7 +141,7 @@ void StarGraph::Reset(double graph_size, double graph_a) {
 void StarGraph::ResetStarOnSkySphereGroupRelativeToViewCenter() {
   // 以视点中心为0，0，将星星映射到SkySphere坐标
   star_group_relative_to_view_center_.SetSpecialCenter(StarOnSkySphere("!ghost!", StarSkySpherePos()));
-  star_group_relative_to_view_center_.SetValidRegionRadio(graph_fovy_/2.);
+  star_group_relative_to_view_center_.SetValidRegionRadio(graph_fovy_/2.*1.414);
   for (auto &name_star_pair: stars_) {
     const auto &name = name_star_pair.first;
     const auto &star_on_graph = name_star_pair.second;

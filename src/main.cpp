@@ -386,21 +386,24 @@ int main(int argc, char *argv[]) {
   auto master_star_tested_group = star_graph3.GetMasterGroup();
   master_star_tested_group.Shirk();
   DescriptorConverter<SpecialCenterStarOnSkySphereGroup, Descriptor3<precise>> converter;
-  Descriptor3<precise> star_tested_des;
-  converter(master_star_tested_group, star_tested_des);
+  Descriptor3<precise> star_graph_des;
+  converter(master_star_tested_group, star_graph_des);
 
   auto star_table_des_set =
       StarTable::instance()->CreateDescriptor3Database<precise>(master_star_tested_group.GetValidRegionRadio(),
                                                                 master_star_tested_group.Size());
+  if(!star_table_des_set){
+    LOG_FATAL << "Can NOT create star table descriptor set.";
+  }
 
   for (auto &item:*star_table_des_set) {
-    float sim = star_tested_des.Similarity(item.second);
+    float sim = star_graph_des.Similarity(item.second);
     matches.emplace(sim, item.first);
   }
   if (matches.empty()) {
     LOG_WARNING << "Something Wrong.";
   } else {
-    auto star_tested_rel_on_sky_sphere = star_tested_des.GetSpecialCenterStarOnSkySphereGroup().GetSpecialCenter();
+    auto star_tested_rel_on_sky_sphere = star_graph_des.GetSpecialCenterStarOnSkySphereGroup().GetSpecialCenter();
     auto star_tested_name = star_tested_rel_on_sky_sphere.GetName();
 
     auto star_matched_name = matches.rbegin()->second;
@@ -410,7 +413,7 @@ int main(int argc, char *argv[]) {
     auto star_matched_longitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLongitude();
     auto star_matched_latitude = star_matched_on_sky_sphere.GetSkySpherePos().GetLatitude();
     // TODO more specialized
-    auto match_reliability = star_tested_des.GetStarNum() >= 5 ? matches.rbegin()->first/(star_tested_des.GetStarNum()*(1.6)) : matches.rbegin()->first/5.;
+    auto match_reliability = star_graph_des.GetStarNum() >= 5 ? matches.rbegin()->first/(star_graph_des.GetStarNum()*(1.6)) : matches.rbegin()->first/5.;
 
     ///////////////////////////////////////////////////////////////////////////
     // Highlight matched stars on sky sphere
@@ -420,7 +423,7 @@ int main(int argc, char *argv[]) {
 
     ///////////////////////////////////////////////////////////////////////////
     // Display tested star on sky sphere
-    Vec2d dir1 = star_tested_des.GetSpecialDir();
+    Vec2d dir1 = star_graph_des.GetSpecialDir();
     Vec2d dir2 = star_matched_des.GetSpecialDir();
 
     // Rotate to 0 0
@@ -474,7 +477,7 @@ int main(int argc, char *argv[]) {
              "=========================Match=========================\n" <<
              "Matched star: id=" << star_matched_id << " longitude=" << star_matched_longitude << " latitude=" << star_matched_latitude << "\n" <<
              "Match reliability: " << match_reliability << " " <<
-             "(" << matches.rbegin()->first << "/" << star_tested_des.GetStarNum() << "/" << star_graph3.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
+             "(" << matches.rbegin()->first << "/" << star_graph_des.GetStarNum() << "/" << star_graph3.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
              "=========================Result========================\n" <<
              "Sensor direction: longitude=" << D.GetLongitude() << " latitude=" << D.GetLatitude();
 
@@ -486,7 +489,7 @@ int main(int argc, char *argv[]) {
     star_matched_graph.DebugShow(string("Matched"));
 
     star_graph3.DebugShow(string("Tested"));
-    star_tested_des.DebugShow("Tested");
+    star_graph_des.DebugShow("Tested");
   }
 #endif
   thread t([]() {

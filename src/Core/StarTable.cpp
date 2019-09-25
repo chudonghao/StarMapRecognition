@@ -22,7 +22,7 @@ StarTable *StarTable::instance() {
     pugi::xml_parse_result parse_result = xml_document.load_file("star_table.xml");
 
     if (!parse_result) {
-      LOG_WARNING << "Can NOT parse xml file.";
+      LOG_FATAL << "Can NOT parse xml file. Make sure that run in \"data\" directory";
     }
     int count = 0;
     for (const auto &item : xml_document.child("star_table").children("item")) {
