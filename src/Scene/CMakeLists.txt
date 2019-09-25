@@ -1,3 +1,4 @@
+
 set(MODEL_NAME ${PROJECT_NAME}_Scene)
 
 add_library(${MODEL_NAME} STATIC
@@ -17,4 +18,5 @@ add_library(${MODEL_NAME} STATIC
         StarGroup.h
         CameraFrameNode.cpp
         CameraFrameNode.h)
+
 target_link_libraries(${MODEL_NAME} ${OSG_LIBRARIES} ${PROJECT_NAME}_Core)

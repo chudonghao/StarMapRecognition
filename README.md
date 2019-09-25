@@ -7,9 +7,15 @@
 ## 结果
 ### 第一题第一问
 星星选取：
+
 ![计算结果](result/1.png)
 计算结果：
+
 ![计算结果](result/2.png)
 ### 第二题 星图8识别结果
 识别结果：
+
 ![识别结果](result/recognition.png)
+识别报告：
+
+![识别结果](result/recognition_report.png)
