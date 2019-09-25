@@ -38,52 +38,74 @@ void MasterView::InitCameraManipulator() {
   camera_manipulator_->SetOnObjectTouched([=](const NodePath &np) {
     Matrix m = computeLocalToWorld(np);
     hint_text_mt_->setMatrix(m);
-    Node *node = nullptr;
+    Planet *planet = nullptr;
     for (int i = np.size() - 1; i >= 0; --i) {
       if (!np[i]->getName().empty()) {
-        node = np[i];
-        break;
+        planet = dynamic_cast<Planet *>(np[i]);
+        if (planet) {
+          break;
+        }
       }
     }
-    if (node) {
-      hint_text_->setText(node->getName());
+    if (planet) {
+      auto &star_table = StarTable::instance()->Table();
+      auto &star_data = star_table[planet->getName()];
+      hint_text_->setText(planet->getName() + ":" + to_string(star_data.a) + ":" + to_string(star_data.b) + ":"
+                              + to_string(star_data.l));
     }
   });
   camera_manipulator_->SetOnObjectClicked([=](const NodePath &np) {
     Matrix m = computeLocalToWorld(np);
-    Node *node = nullptr;
+    Planet *planet = nullptr;
     for (int i = np.size() - 1; i >= 0; --i) {
       if (!np[i]->getName().empty()) {
-        node = np[i];
-        break;
+        planet = dynamic_cast<Planet *>(np[i]);
+        if (planet) {
+          break;
+        }
       }
     }
-    if (node) {
-      Vec3 target = Vec3()*m;
+    if (planet) {
+      Vec3 target = Vec3() * m;
       Geode *geode = new Geode;
       geode->addDrawable(createLine(Vec3(), target, Vec3(0.f, 0.f, 1.f)));
       root_->addChild(geode);
-      Planet *planet = dynamic_cast<Planet *>(node);
       planet->SetColor(Vec4(0.f, 0.f, 1.f, 1.f));
 
       if (sensor_camera_) {
-        Vec3 window = target*sensor_camera_->getViewMatrix()*sensor_camera_->getProjectionMatrix();
-        cout << window.x() << ":" << window.y() << ":" << window.z() << endl;
+        Vec3 window = target * sensor_camera_->getViewMatrix() * sensor_camera_->getProjectionMatrix();
         static int i = 0;
         auto &star_table = StarTable::instance()->Table();
-        input_[i] = Input{star_table[planet->getName()].a, star_table[planet->getName()].b, sqrt(window.x()*window.x() + window.y()*window.y())};
+        auto &star = star_table[planet->getName()];
+        auto r = sqrt(window.x() * window.x() + window.y() * window.y());
+        input_[i] = Input{star.a, star.b, r};
+        LOG_INFO << "Click star: id=" << star.id << " longitude=" << star.a << " latitude=" << star.b << " r=" << r;
+        cout << window.x() << ":" << window.y() << ":" << window.z() << endl;
         ++i;
         if (i == 3) {
           i = 0;
-          solver_(input_[0].a,
-                  input_[0].b,
-                  input_[1].a,
-                  input_[1].b,
-                  input_[2].a,
-                  input_[2].b,
-                  input_[0].r,
-                  input_[1].r,
-                  input_[2].r);
+          vec2 res = solver_(input_[0].a,
+                             input_[0].b,
+                             input_[1].a,
+                             input_[1].b,
+                             input_[2].a,
+                             input_[2].b,
+                             input_[0].r,
+                             input_[1].r,
+                             input_[2].r);
+          Vec3 eye, center, up;
+          sensor_camera_->getViewMatrixAsLookAt(eye, center, up);
+          Vec3 dir = center - eye;
+          dir.normalize();
+          float lon = RadiansToDegrees(atan(dir.y() / dir.x()));
+          float lat = RadiansToDegrees(atan(dir.z()));
+          if (dir.x() <= 0.f) {
+            lon += 180.f;
+          } else if (dir.y() <= 0.f) {
+            lon += 360.f;
+          }
+          LOG_INFO << "\nSensor real target: longitude=" << lon << " latitude=" << lat << "\n" <<
+                   "Solve result: longitude=" << res.x << " latitude=" << res.y;
         }
       }
     }

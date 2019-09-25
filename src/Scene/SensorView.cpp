@@ -68,12 +68,12 @@ void SensorView::OnCameraRotated(const osg::Vec3 &eye, const osg::Vec3 &center) 
   Vec3 dir = center - eye;
   dir.normalize();
   float lon = RadiansToDegrees(atan(dir.y() / dir.x()));
-  float la = RadiansToDegrees(atan(dir.z() / sqrt(dir.x() * dir.x() + dir.y() * dir.y())));
+  float la = RadiansToDegrees(atan(dir.z()));
   if (dir.x() <= 0.f) {
     lon += 180.f;
   } else if (dir.y() <= 0.f) {
     lon += 360.f;
   }
-  LOG_INFO << "Sensor target: " << lon << ":" << la;
+  //LOG_INFO << "Sensor target: " << lon << ":" << la;
   target_hint_text_->setText(to_string(int(lon)) + ":" + to_string(int(la)));
 }

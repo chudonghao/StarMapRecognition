@@ -466,7 +466,7 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
-    LOG_INFO << "\n" <<
+    LOG_INFO << "\n================**=Recognition Report=**===============\n" <<
              "=========================Test==========================\n" <<
              "Testing star: id=" << master_star_tested_group.GetSpecialCenter().GetName() << "\n" <<
              "Companion star size: " << master_star_tested_group.Size() << "\n" <<
@@ -479,7 +479,8 @@ int main(int argc, char *argv[]) {
              "Match reliability: " << match_reliability << " " <<
              "(" << matches.rbegin()->first << "/" << star_graph_des.GetStarNum() << "/" << star_graph3.GetStarGroupRelativeToViewCenter().Size() << ")\n" <<
              "=========================Result========================\n" <<
-             "Sensor direction: longitude=" << D.GetLongitude() << " latitude=" << D.GetLatitude();
+             "Sensor direction: longitude=" << D.GetLongitude() << " latitude=" << D.GetLatitude() <<
+             "\n=======================================================";
 
     ///////////////////////////////////////////////////////////////////////////
     // Display Descriptor and graph

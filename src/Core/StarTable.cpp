@@ -35,7 +35,7 @@ StarTable *StarTable::instance() {
       star_table->star_table_[id] = StarTableData{id, a, b, l};
       ++count;
     }
-    LOG_INFO << "Got " << count << " stars.";
+    LOG_INFO << "Inited Star table, Got " << count << " stars.";
   }
   return star_table;
 }

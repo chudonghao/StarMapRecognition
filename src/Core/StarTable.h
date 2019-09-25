@@ -77,13 +77,13 @@ std::map<std::string, Descriptor3<special_size>> *StarTable::CreateDescriptor3Da
   auto *res = new map<string, Descriptor3<special_size>>;
   shared_ptr<multimap<double, StarOnSkySphere>> brightness_star_map(new multimap<double, StarOnSkySphere>);
   int i = 0;
+  LOG_INFO << "Start to init descriptor3 database.";
   for (auto &name_star_pair:star_table_) {
-    if (i == 0) {
-      LOG_TRACE << "star id: " << name_star_pair.first;
-      LOG_TRACE << "matched star: " << brightness_star_map->size();
-    }
+//    if (i == 0) {
+//      LOG_TRACE << "star id: " << name_star_pair.first;
+//    }
     if (i % 100 == 0) {
-      LOG_INFO << i << '/' << star_table_.size();
+      LOG_INFO <<"Initing descriptor3 database: "<< i << '/' << star_table_.size();
     }
     brightness_star_map->clear();
     StarOnSkySphere star(name_star_pair.second);

@@ -3,6 +3,7 @@
 //
 
 #include "CameraStarFunc.h"
+#include "../log.h"
 
 using namespace ceres;
 using namespace std;
@@ -27,7 +28,7 @@ vec2 solver_(double a1, double b1, double a2, double b2, double a3, double b3, d
   options.minimizer_progress_to_stdout = true;
   Solver::Summary summary;
   Solve(options, &problem, &summary);
-  cout << summary.BriefReport() << endl;
-  cout << init_a << ":" << init_b << endl;
+  LOG_INFO << "\n=========================Ceres Solve Report=========================\n" << summary.BriefReport() <<
+           "\nCeres Solve result: " << init_a << ":" << init_b;
   return vec2{init_a, init_b};
 }

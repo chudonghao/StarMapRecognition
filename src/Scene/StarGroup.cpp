@@ -29,9 +29,6 @@ void StarGroup::InitPlanets() {
     auto rotate_a = Matrix::rotate(DegreesToRadians(item.second.a), Vec3d(0., 0., 1.));
     //auto rotate_axis_ny = Vec3d(0., -1., 0.)*rotate_a;
     auto rotate_b = Matrix::rotate(DegreesToRadians(item.second.b), Vec3d(0., -1., 0.));
-
-    planet->setName(item.second.id + ':' + to_string(item.second.a) + ':' + to_string(item.second.b) + ':'
-                        + to_string(item.second.l));
     mt->setMatrix(Matrix::translate(Vec3(2000., 0., 0.))*rotate_b*rotate_a);
   }
   auto *long_lat_group = new Group;
